@@ -1,6 +1,13 @@
-# Fight Club GvG organization bot
+# Fight Club GvG bot
 # Development documentation
 
+## TODO (this documentation):
+1. define core entities **league, match, roles, participant, admin, team, announcement message** in technical specifications
+2. start moving everything after introduction to wiki pages
+3. document persistence method SQLite 
+4. document new "league" entity which is more or less just a server using this bot.
+5. document entity relations: leagues know of their matches, participants, and roles. matches also know of their participants (in app, not in storage).
+6. figure out a nice way to do the math notation in the wiki pages
 ### Table of contents
   - [Introduction](#introduction)
   - [Overview](#overview)
@@ -10,6 +17,8 @@
   - [Functional Requirements](#functional-requirements)
     - [Admin Commands](#admin-commands-dont-type-the-brackets)
     - [Participant Actions](#participant-actions)
+  - [Technical Specifications](#technical-specifications)
+
 
 
 ## Introduction
@@ -62,7 +71,7 @@
    - Displays a list of all player ratings in the admin channel
 
 ### Participant Actions
-1. Add reaction to **primary role** or **secondary role **announcement message
+1. Add reaction to **primary role** or **secondary role** announcement message
    - If this is a participant's first reaction, they are now **RSVP**d to the match and thus add to the total number of participants
    - Adds the given role to the list of that participant's primary or secondary roles for the match
    - Participants are not permitted to react to both primary and secondary role announcement messages with the same role

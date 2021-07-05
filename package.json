@@ -1,6 +1,8 @@
 {
   "dependencies": {
-    "discord.js": "^12.5.3"
+    "discord.js": "^12.5.3",
+    "sequelize": "^6.6.4",
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {
     "eslint": "^7.29.0"

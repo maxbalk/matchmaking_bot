@@ -1,32 +1,51 @@
 
 const fs = require('fs');
-const {prefix, token} = require('./config.json');
-
+const config = require('./config.json');
 const Discord = require('discord.js');
+const Sequelize = require('sequelize');
+
+const db = new Sequelize('database', 'user', 'password', {
+	host: 'localhost',
+	dialect: 'sqlite',
+	logging: false,
+	// SQLite only
+	storage: 'database.sqlite',
+});
+
 const client = new Discord.Client();
 
-client.commands = new Discord.Collection();
-const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+registerEntities();
+registerEvents();
+registerCommands();
 
-for (const file of commandFiles) {
-	const command = require(`./commands/${file}`);
-	client.commands.set(command.name, command);
+client.login(config.token);
+
+
+function registerEntities(){
+	const modelFiles = fs.readdirSync('./models/').filter(file => file.endsWith('.js'));
+	for (const file of modelFiles) {
+		const model = require(`./models/${file}`);
+		model.define(db).sync();
+	}
 }
 
-client.on('message', message => {
-	if (!message.content.startsWith(prefix) || message.author.bot) return;
-
-	const args = message.content.slice(prefix.length).trim().split(/ +/);
-	const commandName = args.shift().toLowerCase();
-
-	if (!client.commands.has(commandName)) return;
-	const command = client.commands.get(commandName);
-	try {
-		command.execute(message, client, args);
-	} catch (error) {
-		console.error(error);
-		message.reply('there was an error trying to execute that command');
+function registerCommands(){
+	client.commands = new Discord.Collection();
+	const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+	for (const file of commandFiles) {
+		const command = require(`./commands/${file}`);
+		client.commands.set(command.name, command);
 	}
-})
+}
 
-client.login(token);
+function registerEvents(){
+	const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+	for (const file of eventFiles) {
+		const event = require(`./events/${file}`);
+		if (event.once) {
+			client.once(event.name, (...args) => event.execute(...args, client));
+		} else {
+			client.on(event.name, (...args) => event.execute(...args, client));
+		}
+	}
+}
