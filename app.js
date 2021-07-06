@@ -2,24 +2,23 @@
 const fs = require('fs');
 const config = require('./config.json');
 const Discord = require('discord.js');
-const Sequelize = require('sequelize');
-
-const db = new Sequelize('database', 'user', 'password', {
-	host: 'localhost',
-	dialect: 'sqlite',
-	logging: false,
-	// SQLite only
-	storage: 'database.sqlite',
-});
+const League = require('./lib/league/league');
+const db = require('./db')
 
 const client = new Discord.Client();
-
-registerEntities();
-registerEvents();
-registerCommands();
+client.once('ready', () => {
+	initLeague();
+	registerEntities();
+	registerEvents();
+	registerCommands();
+});
 
 client.login(config.token);
 
+function initLeague(){
+	const league = new League(db);
+	league.createLeague(client);
+}
 
 function registerEntities(){
 	const modelFiles = fs.readdirSync('./models/').filter(file => file.endsWith('.js'));

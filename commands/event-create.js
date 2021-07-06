@@ -1,5 +1,7 @@
+const db = require('../app.js')
+
 module.exports = {
-	name: 'match-create',
+	name: 'event-create',
 	description: 'Create Match Announcement',
 	execute(message, args) {
         var d = new Date(...args.map(arg => Number(arg)));
