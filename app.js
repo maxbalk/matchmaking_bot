@@ -2,8 +2,8 @@
 const fs = require('fs');
 const config = require('./config.json');
 const Discord = require('discord.js');
-const Models = require('./models/models')
-const db = require('./db')
+const Models = require('./lib/models')
+const db = require('./lib/db')
 
 const client = new Discord.Client();
 client.once('ready', () => {

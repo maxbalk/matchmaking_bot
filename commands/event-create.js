@@ -1,5 +1,3 @@
-const db = require('../app.js')
-
 module.exports = {
 	name: 'event-create',
 	description: 'Create Match Announcement',
