@@ -22,10 +22,10 @@ function initLeagues(){
 }
 
 function registerEntities(){
-	const modelFiles = fs.readdirSync('./models/').filter(file => file.endsWith('.js'));
-	for (const file of modelFiles) {
-		const model = require(`./models/${file}`);
-		model.define(db).sync();
+	//const modelFiles = fs.readdirSync('./models/').filter(file => file.endsWith('.js'));
+	for (const modelName of Object.keys(Models)) {
+		const model = Models[modelName]()
+		model.sync()
 	}
 }
 
