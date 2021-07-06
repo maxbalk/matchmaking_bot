@@ -1,24 +1,34 @@
 
+const Discord = require('discord.js');
 const fs = require('fs');
 const config = require('./config.json');
-const Discord = require('discord.js');
 const Models = require('./lib/models')
-const db = require('./lib/db')
 
 const client = new Discord.Client();
+client.login(config.token);
+
 client.once('ready', () => {
-	initLeagues();
 	registerEntities();
+	registerLeagues();
 	registerEvents();
 	registerCommands();
 });
 
-client.login(config.token);
-
-function initLeagues(){
-	const League = require('./lib/league');
-	const league = new League(Models.league());
-	league.createLeague(client);
+function registerLeagues(){
+	const leagues = Models.league();
+	const guilds = client.guilds.cache.array();
+	for (guild of guilds) {
+		try {
+			let league = leagues.findOne({
+				where: {
+					name: guild.name,
+					server_id: guild.id
+				}
+			});
+		} catch (e) {
+			console.log(client)
+		}
+	}
 }
 
 function registerEntities(){
