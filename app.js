@@ -19,10 +19,11 @@ async function registerLeagues(){
 	const leagues = Models.league();
 	const guilds = client.guilds.cache.array();
 	for (guild of guilds) {
-		if(await leagues.findOne({ where: {guild_id: guild.id}})){
-			continue;
-		}
-		const newLeague = await leagues.create({ guild_id: guild.id});
+		const league = await leagues.findOne({ 
+			where: {guild_id: guild.id}
+		});
+		if (league) continue;
+		leagues.create({ guild_id: guild.id});
 		console.log(`added new league for ${guild.name}`);
 	}
 }
@@ -30,7 +31,7 @@ async function registerLeagues(){
 async function registerEntities(){
 	for (const modelName of Object.keys(Models)) {
 		const model = Models[modelName]()
-		await model.sync({force: true})
+		await model.sync()
 	}
 }
 
