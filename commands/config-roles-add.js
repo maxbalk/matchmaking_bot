@@ -1,3 +1,4 @@
+const { MessageAttachment } = require('discord.js');
 const Models = require('../lib/models')
 
 module.exports = {
@@ -5,26 +6,31 @@ module.exports = {
 	description: 'Add new roles - role name must match emoji name.',
 	async execute(message, args) {
         var roleName = args.toString();
+		var guildID = message.guild.id;
         const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
-        var res = `Role ${roleName} added to the table using the ${classEmoji} emoji.`;
+
+		if(typeof(classEmoji) == 'undefined') {
+			var badRes = `No emoji matches the role name.`;
+			message.channel.send(badRes);
+			return;
+		}
 
         const roles_table = Models.roles();
 		const modelList = await roles_table.findAll({ attributes: ['name'] });
-		const modelString = modelList.map(t => t.name).join(',') || 'No roles set.';
-		var nameArr = modelString.split(',');
+		const modelString = modelList.map(t => t.name) || [];
 
-			if(nameArr.includes(roleName))
-			{
-				var badRes = `Role ${roleName} already exists.`;
-				message.channel.send(badRes);
-			}
-			else {
-				const roles_table = Models.roles();
-				const roles = roles_table.create({
-					name: roleName,
-					active: true,
-				});
-				return message.channel.send(res);
-			}
+		if(modelString.includes(roleName)) {
+			var badRes = `Role ${roleName} already exists.`;
+			message.channel.send(badRes);
+			return;
 		}
-	};
+		const role = roles_table.create({
+			name: roleName,
+			active: true,
+			guild_id: guildID
+		});
+
+		var res = `Role ${roleName} added to the table using the ${classEmoji} emoji.`;
+		message.channel.send(res);
+	}
+};
