@@ -2,44 +2,39 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const config = require('./config.json');
+const db = require('./lib/db')
 const Models = require('./lib/models')
 
 const client = new Discord.Client();
 client.login(config.token);
 
 client.once('ready', () => {
-	registerEntities();
-	registerLeagues();
-	registerEvents();
-	registerCommands();
+	registerEntities()
+	.then (registerLeagues)
+	.then (registerEvents)
+	.then (registerCommands);
 });
 
-function registerLeagues(){
+async function registerLeagues(){
 	const leagues = Models.league();
 	const guilds = client.guilds.cache.array();
 	for (guild of guilds) {
-		try {
-			let league = leagues.findOne({
-				where: {
-					name: guild.name,
-					server_id: guild.id
-				}
-			});
-		} catch (e) {
-			console.log(client)
+		if(await leagues.findOne({ where: {guild_id: guild.id}})){
+			continue;
 		}
+		const newLeague = await leagues.create({ guild_id: guild.id});
+		console.log(`added new league for ${guild.name}`);
 	}
 }
 
-function registerEntities(){
-	//const modelFiles = fs.readdirSync('./models/').filter(file => file.endsWith('.js'));
+async function registerEntities(){
 	for (const modelName of Object.keys(Models)) {
 		const model = Models[modelName]()
-		model.sync()
+		await model.sync({force: true})
 	}
 }
 
-function registerCommands(){
+async function registerCommands(){
 	client.commands = new Discord.Collection();
 	const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
 	for (const file of commandFiles) {
@@ -48,7 +43,7 @@ function registerCommands(){
 	}
 }
 
-function registerEvents(){
+async function registerEvents(){
 	const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
 	for (const file of eventFiles) {
 		const event = require(`./events/${file}`);
