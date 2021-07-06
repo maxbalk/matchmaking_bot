@@ -2,12 +2,12 @@
 const fs = require('fs');
 const config = require('./config.json');
 const Discord = require('discord.js');
-const League = require('./lib/league/league');
+const Models = require('./models/models')
 const db = require('./db')
 
 const client = new Discord.Client();
 client.once('ready', () => {
-	initLeague();
+	initLeagues();
 	registerEntities();
 	registerEvents();
 	registerCommands();
@@ -15,8 +15,9 @@ client.once('ready', () => {
 
 client.login(config.token);
 
-function initLeague(){
-	const league = new League(db);
+function initLeagues(){
+	const League = require('./lib/league');
+	const league = new League(Models.league());
 	league.createLeague(client);
 }
 
