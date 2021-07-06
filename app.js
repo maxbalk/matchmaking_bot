@@ -9,7 +9,7 @@ client.login(config.token);
 
 client.once('ready', () => {
 	registerEntities();
-	registerLeagues();
+//	registerLeagues();
 	registerEvents();
 	registerCommands();
 });
