@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Fight Club GvG bot</title>
+        <style>
+</style>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.10.2/dist/katex.min.css" integrity="sha384-yFRtMMDnQtDRO8rLpMIKrtPCD5jdktao2TV19YiZYWMDkUR5GQZR/NOVTdquEx1j" crossorigin="anonymous">
+<link href="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/markdown.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Microsoft/vscode/extensions/markdown-language-features/media/highlight.css">
+<style>
+            body {
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe WPC', 'Segoe UI', system-ui, 'Ubuntu', 'Droid Sans', sans-serif;
+                font-size: 14px;
+                line-height: 1.6;
+            }
+        </style>
+        <style>
+.task-list-item { list-style-type: none; } .task-list-item-checkbox { margin-left: -20px; vertical-align: middle; }
+</style>
+        
+        <script src="https://cdn.jsdelivr.net/npm/katex-copytex@latest/dist/katex-copytex.min.js"></script>
+        
+    </head>
+    <body class="vscode-body vscode-light">
+        <h1 id="fight-club-gvg-bot">Fight Club GvG bot</h1>
+<h1 id="development-documentation">Development documentation</h1>
+<h2 id="todo-this-documentation">TODO (this documentation):</h2>
+<ol>
+<li>define core entities <strong>league, match, roles, participant, admin, team, announcement message</strong> in technical specifications</li>
+<li>start moving everything after introduction to wiki pages</li>
+<li>document persistence method SQLite</li>
+<li>document new &quot;league&quot; entity which is more or less just a server using this bot.</li>
+<li>document entity relations: leagues know of their matches, participants, and roles. matches also know of their participants (in app, not in storage).</li>
+<li>figure out a nice way to do the math notation in the wiki pages</li>
+</ol>
+<h3 id="table-of-contents">Table of contents</h3>
+<ul>
+<li><a href="#introduction">Introduction</a></li>
+<li><a href="#overview">Overview</a>
+<ul>
+<li><a href="#match-organization">Match organization</a></li>
+<li><a href="#matchmaking---role-distribution">Matchmaking - Role distribution</a></li>
+<li><a href="#matchmaking---player-rating">Matchmaking - Player rating</a></li>
+</ul>
+</li>
+<li><a href="#functional-requirements">Functional Requirements</a>
+<ul>
+<li><a href="#admin-commands-dont-type-the-brackets">Admin Commands</a></li>
+<li><a href="#participant-actions">Participant Actions</a></li>
+</ul>
+</li>
+<li><a href="#technical-specifications">Technical Specifications</a></li>
+</ul>
+<h2 id="introduction">Introduction</h2>
+<ul>
+<li>This is a bot application for Discord intended to help organize 15v15 matches.</li>
+<li>All actions interfacing with this bot will be avaiable in the form of Discord reactions for participants and text channel commands for administrators.</li>
+</ul>
+<h2 id="overview">Overview</h2>
+<h3 id="match-organization">Match organization</h3>
+<ol>
+<li>match <strong>organizers</strong> will be able to create an <strong>match</strong> at a given date and time</li>
+<li>For a given server, there will be a set of pre defined <strong>roles</strong></li>
+<li><strong>Participants</strong> can <strong>RSVP</strong> to an match by reacting to one of the match <strong>announcement messages</strong></li>
+<li>Each match will have two announcement messages. Role reactions to the first designate a participant's <strong>primary</strong> roles to the match; role reactions to the second message specify <strong>secondary</strong> roles.</li>
+<li>Participants can specify willingness to <strong>sub</strong> by adding the sub reaction.</li>
+</ol>
+<h3 id="matchmaking---role-distribution">Matchmaking - Role distribution</h3>
+<ol start="6">
+<li>This application will attempt to distribute participants into <strong>teams</strong> of 15 given minimum, optimal, and max parameters for role populations.</li>
+<li>Primary role signups are given greater <strong>priority</strong> than secondary role signups. Participants are permitted to have all primary, all secondy, or a mix of both signups.</li>
+<li>Subs are given the lowest priority unless a role has yet to reach its minimum number of participants or another role has exceeded its maximum.</li>
+</ol>
+<h3 id="matchmaking---player-rating">Matchmaking - Player rating</h3>
+<ol start="9">
+<li>
+<p>We will attempt to use hidden Elo ratings to distribute players and generate fair matches.</p>
+<ul>
+<li>Elo starts with a value of 1000. <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>K</mi></mrow><annotation encoding="application/x-tex">K</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span></span></span></span> begins at <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>100</mn></mrow><annotation encoding="application/x-tex">100</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.64444em;vertical-align:0em;"></span><span class="mord">1</span><span class="mord">0</span><span class="mord">0</span></span></span></span> and decreases at a rate of <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mn>20</mn><mi>l</mi><mi>o</mi><mi>g</mi><mo stretchy="false">(</mo><mn>10</mn><mi>n</mi><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">20log(10n)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord">2</span><span class="mord">0</span><span class="mord mathdefault" style="margin-right:0.01968em;">l</span><span class="mord mathdefault">o</span><span class="mord mathdefault" style="margin-right:0.03588em;">g</span><span class="mopen">(</span><span class="mord">1</span><span class="mord">0</span><span class="mord mathdefault">n</span><span class="mclose">)</span></span></span></span> where <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>n</mi></mrow><annotation encoding="application/x-tex">n</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.43056em;vertical-align:0em;"></span><span class="mord mathdefault">n</span></span></span></span> is the number of matches played by that participant</li>
+<li>Let <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>A</mi></msub></mrow><annotation encoding="application/x-tex">R_A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.00773em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> be a participant's elo and <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>R</mi><mi>B</mi></msub></mrow><annotation encoding="application/x-tex">R_B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.00773em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight" style="margin-right:0.05017em;">B</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> be the mean elo of an opposing team.</li>
+<li>Expectation <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>A</mi></mrow><annotation encoding="application/x-tex">A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault">A</span></span></span></span> beats <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>B</mi></mrow><annotation encoding="application/x-tex">B</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.68333em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.05017em;">B</span></span></span></span>: <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>E</mi><mi>A</mi></msub></mrow><annotation encoding="application/x-tex">E_A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> = 1/(1+10<sup>(R<sub>B</sub>-R<sub>A</sub>)/400</sup>)</li>
+<li>Result <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msub><mi>S</mi><mi>A</mi></msub></mrow><annotation encoding="application/x-tex">S_A</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span></span></span></span> = 1 if A wins, 0 if B wins</li>
+<li><span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><msubsup><mi>R</mi><mi>A</mi><mo mathvariant="normal" lspace="0em" rspace="0em">′</mo></msubsup><mo>=</mo><msub><mi>R</mi><mi>A</mi></msub><mo>+</mo><mi>K</mi><mo stretchy="false">(</mo><msub><mi>S</mi><mi>A</mi></msub><mo>−</mo><msub><mi>E</mi><mi>A</mi></msub><mo stretchy="false">)</mo></mrow><annotation encoding="application/x-tex">R&#x27;_A = R_A + K(S_A - E_A)</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:1.027223em;vertical-align:-0.275331em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.751892em;"><span style="top:-2.424669em;margin-left:-0.00773em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">A</span></span></span><span style="top:-3.063em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mtight"><span class="mord mtight">′</span></span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.275331em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2777777777777778em;"></span><span class="mrel">=</span><span class="mspace" style="margin-right:0.2777777777777778em;"></span></span><span class="base"><span class="strut" style="height:0.83333em;vertical-align:-0.15em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.00773em;">R</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.00773em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">+</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord mathdefault" style="margin-right:0.07153em;">K</span><span class="mopen">(</span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">S</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mspace" style="margin-right:0.2222222222222222em;"></span><span class="mbin">−</span><span class="mspace" style="margin-right:0.2222222222222222em;"></span></span><span class="base"><span class="strut" style="height:1em;vertical-align:-0.25em;"></span><span class="mord"><span class="mord mathdefault" style="margin-right:0.05764em;">E</span><span class="msupsub"><span class="vlist-t vlist-t2"><span class="vlist-r"><span class="vlist" style="height:0.32833099999999993em;"><span style="top:-2.5500000000000003em;margin-left:-0.05764em;margin-right:0.05em;"><span class="pstrut" style="height:2.7em;"></span><span class="sizing reset-size6 size3 mtight"><span class="mord mathdefault mtight">A</span></span></span></span><span class="vlist-s">​</span></span><span class="vlist-r"><span class="vlist" style="height:0.15em;"><span></span></span></span></span></span></span><span class="mclose">)</span></span></span></span></li>
+</ul>
+</li>
+<li>
+<p>Participants will be assigned teams based on rating first, then role adjustments will be made.</p>
+<ul>
+<li>We use the <a href="https://en.wikipedia.org/wiki/Largest_differencing_method">Karmarkar–Karp algorithm</a> to create workable partitioning approximations</li>
+<li>Sort participant Elo ratings in decreasing order.</li>
+<li>Given <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span> teams, allocate the greatest <span class="katex"><span class="katex-mathml"><math xmlns="http://www.w3.org/1998/Math/MathML"><semantics><mrow><mi>k</mi></mrow><annotation encoding="application/x-tex">k</annotation></semantics></math></span><span class="katex-html" aria-hidden="true"><span class="base"><span class="strut" style="height:0.69444em;vertical-align:0em;"></span><span class="mord mathdefault" style="margin-right:0.03148em;">k</span></span></span></span> ratings to each subset such that the total difference between subsets is minimized until no participants remain</li>
+<li>Adjust team membership to fit role parameters under the same constraint</li>
+</ul>
+</li>
+</ol>
+<h2 id="functional-requirements">Functional Requirements</h2>
+<h3 id="admin-commands">Admin Commands</h3>
+<ol>
+<li><code>match-create &lt;yyyy mm dd hh mm&gt;</code>
+<ul>
+<li>Creates a <strong>match</strong> event at the given date and time.</li>
+<li>Posts two match <strong>match announcement messages</strong> in the <strong>match channel</strong></li>
+</ul>
+</li>
+<li><code>config-admin-channel &lt;channel-name&gt;</code>
+<ul>
+<li>Designates the channel to listen for admin commands</li>
+</ul>
+</li>
+<li><code>config-match-channel &lt;channel-name&gt;</code>
+<ul>
+<li>Designates the channel where match announcements and updates will be posted.</li>
+</ul>
+</li>
+<li><code>config-roles-add &lt;role-name emoji-name&gt;</code>
+<ul>
+<li>Adds a participant role for matches</li>
+</ul>
+</li>
+<li><code>config-roles-remove &lt;role-name emoji-name&gt;</code>
+<ul>
+<li>Remove participant role</li>
+</ul>
+</li>
+<li><code>config-roles-min &lt;role-name min&gt;</code>
+<ul>
+<li>Set the minimum role population parameter</li>
+</ul>
+</li>
+<li><code>config-roles-max &lt;role-name max&gt;</code>
+<ul>
+<li>Set maximum role population parameter</li>
+</ul>
+</li>
+<li><code>show-ratings</code>
+<ul>
+<li>Displays a list of all player ratings in the admin channel</li>
+</ul>
+</li>
+</ol>
+<h3 id="participant-actions">Participant Actions</h3>
+<ol>
+<li>
+<p>Add reaction to <strong>primary role</strong> or <strong>secondary role</strong> announcement message</p>
+<ul>
+<li>If this is a participant's first reaction, they are now <strong>RSVP</strong>d to the match and thus add to the total number of participants</li>
+<li>Adds the given role to the list of that participant's primary or secondary roles for the match</li>
+<li>Participants are not permitted to react to both primary and secondary role announcement messages with the same role</li>
+</ul>
+</li>
+<li>
+<p>Remove reaction</p>
+<ul>
+<li>Removes a role from a participant's list of primary secondary roles</li>
+<li>If both lists are now empty, the participant is no longer RSVPd to the match. Match population decreased by one</li>
+</ul>
+</li>
+</ol>
+<h2 id="technical-specifications">Technical Specifications</h2>
+<h3 id="to-be-added">to be added</h3>
+
+    </body>
+    </html>

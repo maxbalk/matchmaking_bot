@@ -1,31 +1,41 @@
 
+const Discord = require('discord.js');
 const fs = require('fs');
 const config = require('./config.json');
-const Discord = require('discord.js');
-const Sequelize = require('sequelize');
-
-const db = new Sequelize('database', 'user', 'password', {
-	host: 'localhost',
-	dialect: 'sqlite',
-	logging: false,
-	// SQLite only
-	storage: 'database.sqlite',
-});
+const Models = require('./lib/models')
 
 const client = new Discord.Client();
-
-registerEntities();
-registerEvents();
-registerCommands();
-
 client.login(config.token);
 
+client.once('ready', () => {
+	registerEntities();
+	registerLeagues();
+	registerEvents();
+	registerCommands();
+});
+
+function registerLeagues(){
+	const leagues = Models.league();
+	const guilds = client.guilds.cache.array();
+	for (guild of guilds) {
+		try {
+			let league = leagues.findOne({
+				where: {
+					name: guild.name,
+					server_id: guild.id
+				}
+			});
+		} catch (e) {
+			console.log(client)
+		}
+	}
+}
 
 function registerEntities(){
-	const modelFiles = fs.readdirSync('./models/').filter(file => file.endsWith('.js'));
-	for (const file of modelFiles) {
-		const model = require(`./models/${file}`);
-		model.define(db).sync();
+	//const modelFiles = fs.readdirSync('./models/').filter(file => file.endsWith('.js'));
+	for (const modelName of Object.keys(Models)) {
+		const model = Models[modelName]()
+		model.sync()
 	}
 }
 
