@@ -7,14 +7,15 @@ module.exports = {
         const roles_table = Models.roles();
         const currentID = message.guild.id;
         const modelList = await roles_table.findAll({ attributes: ['name', 'guild_id', 'active'] });
+        
 
         const listOfRoles = [];
 
         for(x in modelList) {
             if(modelList[x].guild_id == currentID) {
-                temp = modelList[x].name + ' | active: ';
-                temp1 = modelList[x].active;
-                listOfRoles.push(temp.concat(temp1));
+                var classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === modelList[x].name);
+                temp = modelList[x].name + ` | Emoji: ${classEmoji} | active: ${modelList[x].active}`;
+                listOfRoles.push(temp);
             }
         }
         message.channel.send(`List of Roles:\n${listOfRoles.join('\n')} `);
