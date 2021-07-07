@@ -14,8 +14,8 @@ module.exports = {
 		let timeZone = args.pop()
 		try {
 			const event_date = moment.tz(args.join(' '), TimeZones[timeZone]).toString();
-			eventAnnouncement(message, event_date);
-			const res = await eventCreate(message, event_date);
+			const announcement_id = await eventAnnouncement(message, event_date);
+			const res = await eventCreate(message, event_date, announcement_id);
 			message.channel.send(res);
 		} catch (e) {
 			message.channel.send(`OoPs! I cant read that date!`);
@@ -53,16 +53,18 @@ async function eventAnnouncement(message, event_date) {
 	for (reaction of reactions) {
 		announcement.react(reaction)
 	}
+	return announcement.id
 }
 
-async function eventCreate(message, event_date) {
+async function eventCreate(message, event_date, announcement_id) {
 	const events_table = Models.event();
 	const event_guild_id = message.guild.id;
 	console.log(moment)
 	try {
 		const event = await events_table.create({
 			league_id: event_guild_id,
-			date: event_date
+			date: event_date,
+			announcement_id: announcement_id
 		});
 		return `New event scheduled for ${event_date}`;
 	} catch (e) {
