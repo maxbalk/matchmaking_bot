@@ -5,9 +5,9 @@ module.exports = {
 	name: 'config-roles-add',
 	description: 'Add new roles - role name must match emoji name.',
 	async execute(message, args) {
-        var roleName = args.toString();
+		var roleName = args.toString();
 		var guildID = message.guild.id.toString();
-        const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
+		const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
 
 		if(typeof(classEmoji) == 'undefined') {
 			var badRes = `No emoji matches the role name.`;
@@ -15,7 +15,7 @@ module.exports = {
 			return;
 		}
 
-        const roles_table = Models.roles();
+		const roles_table = Models.roles();
 		const matchingRole = await roles_table.findOne({ where: { name: roleName, guild_id: guildID } });
 
 		if(matchingRole != null) {
