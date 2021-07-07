@@ -1,5 +1,6 @@
 const Models = require('../lib/models')
 const moment = require('moment-timezone')
+const Discord = require('discord.js')
 
 const TimeZones = {
 	'EU': 'Europe/Berlin',
@@ -13,6 +14,7 @@ module.exports = {
 		let timeZone = args.pop()
 		try {
 			const event_date = moment.tz(args.join(' '), TimeZones[timeZone]).toString();
+			eventAnnouncement(message, event_date);
 			const res = await eventCreate(message, event_date);
 			message.channel.send(res);
 		} catch (e) {
@@ -22,8 +24,38 @@ module.exports = {
 	},
 };
 
+async function eventAnnouncement(message, event_date) {
+	const roles = Models.roles();
+	const guild_roles = await roles.findAll({
+		where: {
+			guild_id: message.guild.id
+		}
+	});
+	const exampleEmbed = new Discord.MessageEmbed()
+	.setColor('#0099ff')
+	.setTitle(`${message.guild.name} league GvG event`)
+	.setDescription(`${event_date}`)
+	.addFields(
+		{ name: 'Participants', value: 'React to sign up as a role' }
+	);
+	
+	
 
-async function eventCreate(message, event_date){
+	const reactions = new Array()
+	for (role of guild_roles) {
+		const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === role.name);
+		reactions.push(classEmoji);
+	}
+	for (reaction of reactions) {
+		exampleEmbed.addField(`${reaction} 0`, '-')
+	}
+	const announcement = await message.channel.send(exampleEmbed);
+	for (reaction of reactions) {
+		announcement.react(reaction)
+	}
+}
+
+async function eventCreate(message, event_date) {
 	const events_table = Models.event();
 	const event_guild_id = message.guild.id;
 	console.log(moment)
