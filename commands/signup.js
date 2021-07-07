@@ -4,7 +4,7 @@ module.exports = {
 	name: 'signup',
 	description: 'Signup to the rated model.',
 	async execute(message, args) {
-		var guildID = message.guild.id.toString();
+		var guildID = message.guild.id;
 		var role = message.member.guild.roles.cache.find(role => role.name === "Registered");
 
 		if(role == null)

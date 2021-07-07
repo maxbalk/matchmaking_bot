@@ -5,7 +5,7 @@ module.exports = {
 	description: 'Add new roles - role name must match emoji name.',
 	async execute(message, args) {
 		var roleName = args.toString();
-		var guildID = message.guild.id.toString();
+		var guildID = message.guild.id;
 		const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
 
 		if(typeof(classEmoji) == 'undefined') {

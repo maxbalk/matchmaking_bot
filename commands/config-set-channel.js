@@ -4,7 +4,7 @@ module.exports = {
 	name: 'config-set-channel',
 	description: 'Sets a new channel for the guild.',
 	async execute(message, args) {
-        var guildID = message.guild.id.toString();
+        var guildID = message.guild.id;
         const command = args.toString();
 
         const channel_table = Models.channel();
@@ -18,7 +18,7 @@ module.exports = {
         }
         const chan = channel_table.create({
             name: command,
-            guildID: guildID
+            guild_id: guildID
         });
 
         var res = `Bot channel set to: ${command} in ${guildID}.`;
