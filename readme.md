@@ -81,4 +81,6 @@
    - If both lists are now empty, the participant is no longer RSVPd to the match. Match population decreased by one
 
 ## Technical Specifications
+### Scuffed schema sketch: 
+https://docs.google.com/spreadsheets/d/1ZfkumlYtyvH29dL8cPyJHThUyCiRZYh9lvjmKGelFQ4/edit?usp=sharing
 ### to be added
