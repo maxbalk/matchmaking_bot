@@ -2,17 +2,17 @@
 const Discord = require('discord.js');
 const fs = require('fs');
 const config = require('./config.json');
-const db = require('./lib/db')
 const Models = require('./lib/models')
-
 const client = new Discord.Client();
+
+
 client.login(config.token);
 
 client.once('ready', () => {
 	registerEntities()
 	.then (registerLeagues)
-	.then (registerEvents)
-	.then (registerCommands);
+	registerEvents()
+	registerCommands()
 });
 
 async function registerLeagues(){
