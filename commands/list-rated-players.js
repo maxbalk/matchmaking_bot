@@ -10,9 +10,9 @@ module.exports = {
         const affectedRows = await r_table.findAll({ attributes:  ['name', 'guild_id', 'elo'] });
         const listOfPlayers = [];
 
-        for(x in affectedRows) {
-            if(affectedRows[x].guild_id == currentID) {
-                temp = affectedRows[x].name + ' elo: ' + affectedRows[x].elo;
+        for(model in affectedRows) {
+            if(affectedRows[model].guild_id == currentID) {
+                temp = affectedRows[model].name + ' elo: ' + affectedRows[model].elo;
                 listOfPlayers.push(temp);
             }
         }

@@ -23,12 +23,12 @@ module.exports = {
 			return;
 		}
 
-		message.guild.members.cache.get(message.author.id).roles.add(role).catch(error => {
-			if (error.code == 50001) {
-				message.channel.send('The bot does not have the correct permissions to add this role.');
-				message.channel.send('Add the role to the member manually.');
-			}
-		});
+		const setRole = await message.guild.members.cache.get(message.author.id).roles.add(role).catch(err => message.channel.send(err.toString()));
+
+		if(setRole.content != null)
+		{
+			if(setRole.content.includes('Missing Access')) return;	
+		}
 
 		const rated_player = r_player_table.create({
 			name: message.member.user.tag,

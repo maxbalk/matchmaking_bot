@@ -11,10 +11,10 @@ module.exports = {
 
         const listOfRoles = [];
 
-        for(x in modelList) {
-            if(modelList[x].guild_id == currentID) {
-                var classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === modelList[x].name);
-                temp = modelList[x].name + ` | Emoji: ${classEmoji} | active: ${modelList[x].active}`;
+        for(model in modelList) {
+            if(modelList[model].guild_id == currentID) {
+                var classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === modelList[model].name);
+                temp = modelList[model].name + ` | Emoji: ${classEmoji} | active: ${modelList[model].active}`;
                 listOfRoles.push(temp);
             }
         }
