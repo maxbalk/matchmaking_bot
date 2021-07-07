@@ -6,7 +6,7 @@ module.exports = {
 	description: 'Add new roles - role name must match emoji name.',
 	async execute(message, args) {
         var roleName = args.toString();
-		var guildID = message.guild.id;
+		var guildID = message.guild.id.toString();
         const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
 
 		if(typeof(classEmoji) == 'undefined') {
@@ -16,10 +16,9 @@ module.exports = {
 		}
 
         const roles_table = Models.roles();
-		const modelList = await roles_table.findAll({ attributes: ['name'] });
-		const modelString = modelList.map(t => t.name) || [];
+		const matchingRole = await roles_table.findOne({ where: { name: roleName, guild_id: guildID } });
 
-		if(modelString.includes(roleName)) {
+		if(matchingRole != null) {
 			var badRes = `Role ${roleName} already exists.`;
 			message.channel.send(badRes);
 			return;
