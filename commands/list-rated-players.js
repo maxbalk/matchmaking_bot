@@ -12,9 +12,8 @@ module.exports = {
 
         for(x in affectedRows) {
             if(affectedRows[x].guild_id == currentID) {
-                temp = affectedRows[x].name + ' elo: ';
-                temp1 = affectedRows[x].elo;
-                listOfPlayers.push(temp.concat(temp1));
+                temp = affectedRows[x].name + ' elo: ' + affectedRows[x].elo;
+                listOfPlayers.push(temp);
             }
         }
         message.channel.send(`List of players:\n${listOfPlayers.join('\n')} `);
