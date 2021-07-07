@@ -18,6 +18,7 @@ module.exports = {
         }
         const chan = channel_table.create({
             name: command,
+            guildID: guildID
         });
 
         var res = `Bot channel set to: ${command} in ${guildID}.`;
