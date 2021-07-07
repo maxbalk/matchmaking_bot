@@ -7,7 +7,6 @@ module.exports = {
         const roles_table = Models.roles();
         const currentID = message.guild.id;
         const modelList = await roles_table.findAll({ attributes: ['name', 'guild_id', 'active'] });
-        const modelString = modelList.map(t => t.name).join(', ') || 'No roles set.';
 
         const listOfRoles = [];
 
