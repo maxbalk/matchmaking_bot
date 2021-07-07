@@ -1,4 +1,3 @@
-const { MessageAttachment } = require('discord.js');
 const Models = require('../lib/models')
 
 module.exports = {
