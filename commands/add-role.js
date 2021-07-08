@@ -1,13 +1,12 @@
-const { MessageAttachment } = require('discord.js');
 const Models = require('../lib/models')
 
 module.exports = {
-	name: 'config-roles-add',
+	name: 'add-role',
 	description: 'Add new roles - role name must match emoji name.',
 	async execute(message, args) {
-        var roleName = args.toString();
-		var guildID = message.guild.id.toString();
-        const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
+		var roleName = args.toString();
+		var guildID = message.guild.id;
+		const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
 
 		if(typeof(classEmoji) == 'undefined') {
 			var badRes = `No emoji matches the role name.`;
@@ -15,8 +14,12 @@ module.exports = {
 			return;
 		}
 
-        const roles_table = Models.roles();
-		const matchingRole = await roles_table.findOne({ where: { name: roleName, guild_id: guildID } });
+		const roles_table = Models.roles();
+		const matchingRole = await roles_table.findOne({ 
+			where: { 
+				name: roleName, league_id: guildID 
+			} 
+		});
 
 		if(matchingRole != null) {
 			var badRes = `Role ${roleName} already exists.`;
@@ -26,7 +29,7 @@ module.exports = {
 		const role = roles_table.create({
 			name: roleName,
 			active: true,
-			guild_id: guildID
+			league_id: guildID
 		});
 
 		var res = `Role ${roleName} added to the table using the ${classEmoji} emoji.`;
