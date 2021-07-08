@@ -17,7 +17,7 @@ module.exports = {
 		const roles_table = Models.roles();
 		const matchingRole = await roles_table.findOne({ 
 			where: { 
-				name: roleName, league_id: guildID 
+				name: roleName, guild_id: guildID 
 			} 
 		});
 
@@ -29,7 +29,7 @@ module.exports = {
 		const role = roles_table.create({
 			name: roleName,
 			active: true,
-			league_id: guildID
+			guild_id: guildID
 		});
 
 		var res = `Role ${roleName} added to the table using the ${classEmoji} emoji.`;

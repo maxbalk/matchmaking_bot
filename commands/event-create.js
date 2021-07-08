@@ -68,7 +68,7 @@ async function eventCreate(message, event_date, announcement_id) {
 	console.log(moment)
 	try {
 		const event = await events_table.create({
-			league_id: event_guild_id,
+			guild_id: event_guild_id,
 			date: event_date,
 			announcement_id: announcement_id
 		});

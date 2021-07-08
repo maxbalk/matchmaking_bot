@@ -17,7 +17,7 @@ module.exports = {
 		const matchingPlayer = await r_player_table.findOne({ 
 			where: { 
 				user_id: message.author.id, 
-				league_id: guildID
+				guild_id: guildID
 			} 
 		});
 
@@ -36,7 +36,7 @@ module.exports = {
 			const new_rated_player = r_player_table.create({
 				user_id: message.author.id,
 				elo: 1000,
-				league_id: guildID,
+				guild_id: guildID,
 				active: true
 			});
 		}

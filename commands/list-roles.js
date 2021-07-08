@@ -19,7 +19,7 @@ module.exports = {
         const roles_table = Models.roles();
         const guildRoles = await roles_table.findAll({ 
             where: {
-                league_id: guild_id,
+                guild_id: guild_id,
                 active: true
             }
         });
