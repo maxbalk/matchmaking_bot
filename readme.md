@@ -20,7 +20,7 @@
 9. !**show-teams** show team allocations from !matchmake
 10. Allow event announcements to listen for reactions once the bot has restarted
     1.  "Listening for reactions on old messages" discord.js guide
-11. 
+11. Make bot DM registered members before event start
 
 
 
