@@ -8,6 +8,14 @@
 4. document new "league" entity which is more or less just a server using this bot.
 5. document entity relations: leagues know of their matches, participants, and roles. matches also know of their participants (in app, not in storage).
 6. figure out a nice way to do the math notation in the wiki pages
+7. stop using todo lists and use github's built in kanban board
+   
+## TODO (Application):
+1. start adding docstrings to methods so we can eventually use jsdoc to generate the technical specifications
+2. decide on a testing framework to use
+
+
+
 ### Table of contents
   - [Introduction](#introduction)
   - [Overview](#overview)

@@ -39,8 +39,6 @@ async function eventAnnouncement(message, event_date) {
 		{ name: 'Participants', value: 'React to sign up as a role' }
 	);
 	
-	
-
 	const reactions = new Array()
 	for (role of guild_roles) {
 		const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === role.name);
