@@ -1,9 +1,10 @@
-const config = require('../config.json');
-const prefix = config.prefix
+const Models = require('../lib/models');
+const { Op } = require('sequelize');
 
 module.exports = {
 	name: 'messageReactionAdd',
-	async execute(reaction, client) {
+	async execute(reaction, user) {
+        if (user.bot) return;
         if (reaction.partial) {
             // If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
             try {
@@ -14,21 +15,53 @@ module.exports = {
                 return;
             }
         }
-        // check if message is an announcement message
-        if (isUpcomingEvent(reaction)){
+        const eventId = await upComingEvent(reaction);
+        if(!eventId) return;
 
-        }
-        // Now the message has been cached and is fully available
-        console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
-        // The reaction is now also fully available and the properties will be reflected accurately:
-        console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
+        const reactionType = await getReactionType(reaction);
+        if (!reactionType) return;
+        
+        if (reactionType == "sub") setParticipantSub(reaction);
+        else addParticipant(reaction);
+
     },
 };
 
-async function isUpcomingEvent(reaction){
-    reaction.message.id
+async function addParticipant(reaction){
+
 }
 
-async function isParticipantSignup(reaction){
-     
+async function setParticipantSub(reaction){
+
+}
+
+
+async function upComingEvent(reaction){
+    const events = Models.event();
+    const utcNow = new Date().toUTCString();
+    const upComingEvent = await events.findOne({
+        where: {
+            league_id: reaction.message.guild.id,
+            date:{
+                [Op.gte]: utcNow
+            },
+            announcement_id: reaction.message.id
+        }
+    });
+    return upComingEvent;
+}
+
+ async function getReactionType(reaction){
+    if (reaction.emoji.name == "gvg_alternate") return "sub";
+    const guild_id = reaction.message.guild.id;
+    const emoji = reaction.emoji.name;
+    const roles = Models.roles();
+    const guildRole = await roles.findOne({
+        where: {
+            guild_id: guild_id,
+            name: emoji,
+        }
+    });
+    if (guildRole) return guildRole;
+    return null;
 }
