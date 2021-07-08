@@ -40,6 +40,15 @@ module.exports = {
 				active: true
 			});
 		}
+		else if(matchingPlayer != null) {
+			const reJoinedPlayer = r_player_table.update(
+				{ active: true },
+				{ where: {
+					user_id: message.author.id,
+					guild_id: guildID
+				}}
+			)
+		}
 	
 		var res = `${message.author.tag} has successfully entered the league.`;
 		message.channel.send(res);
