@@ -11,7 +11,14 @@ module.exports = {
 		})
 		const leagueMemberRole = message.guild.roles.cache
 			.filter(role => role.id == myLeague.member_role_id).array()[0]
-		var role = message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
+			try{
+				var role = await message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
+			} catch {
+				message.channel.send('A role must be set using !member-role rolename');
+				return;
+			}
+
+		
 
 		const r_player_table = Models.rated_player();
 		const matchingPlayer = await r_player_table.findOne({ 
@@ -27,11 +34,21 @@ module.exports = {
 			return;
 		}
 
-		const setRole = await message.guild.members.cache.get(message.author.id).roles.add(role).catch(err => message.channel.send(err.toString()));
+		var x = false;
+		const setRole = await message.guild.members.cache.get(message.author.id).roles.add(role);
+
 		if(setRole.content != null)
 		{
-			if(setRole.content.includes('Missing Access')) return;	
+			if(setRole.content.includes('Missing Access'))
+			{
+			x = true;
+			}
 		}
+
+		if(x) {
+			return;
+		}
+
 		if(matchingPlayer == null){
 			const new_rated_player = r_player_table.create({
 				user_id: message.author.id,
