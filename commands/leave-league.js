@@ -23,7 +23,7 @@ module.exports = {
 		const matchingPlayer = await r_player_table.findOne({ 
             where: { 
                 user_id: message.author.id, 
-                league_id: guildID 
+                guild_id: guildID 
             } });
 
 		if(matchingPlayer == null || !matchingPlayer.active) {
@@ -41,7 +41,7 @@ module.exports = {
             { active: false }, 
             { where: { 
                 user_id: message.author.id, 
-                league_id: guildID }
+                guild_id: guildID }
             }
         );
         if (affectedRows > 0) {

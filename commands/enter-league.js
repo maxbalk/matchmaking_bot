@@ -17,7 +17,7 @@ module.exports = {
 		const matchingPlayer = await r_player_table.findOne({ 
 			where: { 
 				user_id: message.author.id, 
-				league_id: guildID
+				guild_id: guildID
 			} 
 		});
 
@@ -36,9 +36,18 @@ module.exports = {
 			const new_rated_player = r_player_table.create({
 				user_id: message.author.id,
 				elo: 1000,
-				league_id: guildID,
+				guild_id: guildID,
 				active: true
 			});
+		}
+		else if(matchingPlayer != null) {
+			const reJoinedPlayer = r_player_table.update(
+				{ active: true },
+				{ where: {
+					user_id: message.author.id,
+					guild_id: guildID
+				}}
+			)
 		}
 	
 		var res = `${message.author.tag} has successfully entered the league.`;
