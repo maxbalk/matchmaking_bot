@@ -1,6 +1,7 @@
 const Models = require('../lib/models')
 const moment = require('moment-timezone')
 const Discord = require('discord.js')
+const { getGuildRoles } = require('./list-roles')
 
 const TimeZones = {
 	'EU': 'Europe/Berlin',
@@ -14,9 +15,23 @@ module.exports = {
 		let timeZone = args.pop()
 		try {
 			const event_date = moment.tz(args.join(' '), TimeZones[timeZone]).toString();
-			const announcement_id = await eventAnnouncement(message, event_date);
-			const res = await eventCreate(message, event_date, announcement_id);
-			message.channel.send(res);
+			const leagues = Models.league()
+			const myLeague = await leagues.findOne({
+				where : {
+					guild_id: message.guild.id
+				}
+			});
+			const event_channel_id = myLeague.event_channel_id;
+			const event_channel = message.guild.channels.cache
+				.filter(chan => chan.id == event_channel_id).array()[0];
+			try {
+				const announcement_id = await eventAnnouncement(event_channel, event_date);
+				const res = await eventCreate(message, event_date, announcement_id);
+				message.channel.send(res);
+			} catch {
+				message.channel.send("There was a problem creating the event announcement");
+			}
+			
 		} catch (e) {
 			message.channel.send(`OoPs! I cant read that date!`);
 		}
@@ -24,16 +39,12 @@ module.exports = {
 	},
 };
 
-async function eventAnnouncement(message, event_date) {
-	const roles = Models.roles();
-	const guild_roles = await roles.findAll({
-		where: {
-			guild_id: message.guild.id
-		}
-	});
-	const exampleEmbed = new Discord.MessageEmbed()
+async function eventAnnouncement(event_channel, event_date) {
+	const guild_roles = await getGuildRoles(event_channel.guild.id);
+
+	const eventEmbed = new Discord.MessageEmbed()
 	.setColor('#0099ff')
-	.setTitle(`${message.guild.name} league GvG event`)
+	.setTitle(`${event_channel.guild.name} league GvG event`)
 	.setDescription(`${event_date}`)
 	.addFields(
 		{ name: 'Participants', value: 'React to sign up as a role' }
@@ -41,13 +52,10 @@ async function eventAnnouncement(message, event_date) {
 	
 	const reactions = new Array()
 	for (role of guild_roles) {
-		const classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === role.name);
+		const classEmoji = event_channel.guild.emojis.cache.find(emoji => emoji.name === role.name);
 		reactions.push(classEmoji);
 	}
-	for (reaction of reactions) {
-		exampleEmbed.addField(`${reaction} 0`, '-')
-	}
-	const announcement = await message.channel.send(exampleEmbed);
+	const announcement = await event_channel.send(eventEmbed);
 	for (reaction of reactions) {
 		announcement.react(reaction)
 	}
