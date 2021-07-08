@@ -1,11 +1,17 @@
 const Models = require('../lib/models')
 
 module.exports = {
-	name: 'signup',
+	name: 'enter-league',
 	description: 'Signup to the rated model.',
 	async execute(message, args) {
 		var guildID = message.guild.id;
-		var role = message.member.guild.roles.cache.find(role => role.name === "Registered");
+		const leagues = Models.league()
+		const myLeague = await leagues.findOne({
+			where: { guild_id: message.guild.id }
+		})
+		const leagueMemberRole = message.guild.roles.cache
+			.filter(role => role.id == myLeague.member_role_id).array()[0]
+		var role = message.member.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
 
 		if(role == null)
 		{
@@ -15,7 +21,7 @@ module.exports = {
 		}
 
 		const r_player_table = Models.rated_player();
-		const matchingRole = await r_player_table.findOne({ where: { name: message.member.user.tag, guild_id: guildID } });
+		const matchingRole = await r_player_table.findOne({ where: { name: message.member.user.tag, league_id: guildID } });
 
 		if(matchingRole != null) {
 			var badRes = `${message.member.user.tag} is already registered.`;
@@ -33,7 +39,7 @@ module.exports = {
 		const rated_player = r_player_table.create({
 			name: message.member.user.tag,
 			elo: 1000,
-			guild_id: guildID
+			league_id: guildID
 		});
 
 		var res = `${message.member.user.tag} has successfully registered.`;

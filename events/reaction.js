@@ -2,7 +2,7 @@ const Models = require('../lib/models');
 const { Op } = require('sequelize');
 
 module.exports = {
-	name: 'messageReactionAdd',
+	//name: 'messageReactionAdd',
 	async execute(reaction, user) {
         if (user.bot) return;
         if (reaction.partial) {
@@ -20,7 +20,7 @@ module.exports = {
 
         const reactionType = await getReactionType(reaction);
         if (!reactionType) return;
-        
+
         if (reactionType == "sub") setParticipantSub(reaction);
         else addParticipant(reaction);
 

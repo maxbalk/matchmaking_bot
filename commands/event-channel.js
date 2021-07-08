@@ -20,7 +20,7 @@ module.exports = {
             }
         });
         if (affectedRows > 0) {
-            message.channel.send(`Event channel set to: ${channel.name}.`);
+            message.channel.send(`Event channel set to: **${channel.name}**`);
         } else {
             message.channel.send('There was a problem updating the event channel'); 
         }
