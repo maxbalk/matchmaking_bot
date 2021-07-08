@@ -7,12 +7,13 @@ module.exports = {
         const r_table = Models.rated_player();
 
         const currentID = message.guild.id;
-        const affectedRows = await r_table.findAll({ attributes:  ['name', 'guild_id', 'elo'] });
+        const affectedRows = await r_table.findAll({ attributes:  ['user_id', 'league_id', 'elo'] });
         const listOfPlayers = [];
 
         for(model in affectedRows) {
-            if(affectedRows[model].guild_id == currentID) {
-                temp = affectedRows[model].name + ' elo: ' + affectedRows[model].elo;
+            if(affectedRows[model].league_id == currentID) {
+                const User = await message.guild.members.cache.array(affectedRows[model].user_id);
+                temp = User + ' elo: ' + affectedRows[model].elo;
                 listOfPlayers.push(temp);
             }
         }

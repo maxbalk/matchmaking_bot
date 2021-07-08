@@ -8,7 +8,7 @@ module.exports = {
         const currentID = message.guild.id;
         const affectedRows = await roles_table.update(
             { active: true }, 
-            { where: { name: args, guild_id: currentID }}
+            { where: { name: args, league_id: currentID }}
         );
         if (affectedRows > 0) {
             return message.channel.send(`Role ${args} was activated in guild ${currentID}`);
