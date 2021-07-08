@@ -2,17 +2,25 @@
 # Development documentation
 
 ## TODO (this documentation):
-1. define core entities **league, match, roles, participant, admin, team, announcement message** in technical specifications
-2. start moving everything after introduction to wiki pages
-3. document persistence method SQLite 
-4. document new "league" entity which is more or less just a server using this bot.
-5. document entity relations: leagues know of their matches, participants, and roles. matches also know of their participants (in app, not in storage).
-6. figure out a nice way to do the math notation in the wiki pages
-7. stop using todo lists and use github's built in kanban board
+1. start moving everything after introduction to wiki pages
+2. document entity relations: leagues know of their matches, participants, and roles. matches also know of their participants (in app, not in storage).
+3. figure out a nice way to do the math notation in the wiki pages
+4. stop using todo lists and use github's built in kanban board
    
 ## TODO (Application):
 1. start adding docstrings to methods so we can eventually use jsdoc to generate the technical specifications
 2. decide on a testing framework to use
+3. Bot permissions. Only listen to privileged roles. 
+4. !**kick** league member (set inactive)
+5. !**ban** league member (prevent discord user id from entering league)
+6. Set role min-max. can be one command. see **match_params** table in schema sketch
+7. !**help** to list bot commands
+8. !**matchmake**. set teams for the league's next event. will populate **matched player** table
+   1. will show teams on matchmake by default
+9. !**show-teams** show team allocations from !matchmake
+10. Allow event announcements to listen for reactions once the bot has restarted
+    1.  "Listening for reactions on old messages" discord.js guide
+11. 
 
 
 
@@ -59,36 +67,48 @@
     - Adjust team membership to fit role parameters under the same constraint
 
 ## Functional Requirements
-### Admin Commands
-1. `match-create <yyyy mm dd hh mm>`  
-   - Creates a **match** event at the given date and time.  
-   - Posts two match **match announcement messages** in the **match channel** 
-2. `config-admin-channel <channel-name>`
-   - Designates the channel to listen for admin commands
-3. `config-match-channel <channel-name>`
-   - Designates the channel where match announcements and updates will be posted.
-4. `config-roles-add <role-name emoji-name>`
+### Commands
+1. `!event-create yyyy-mm-dd HH:mm TZ` 
+   - admin only
+   - Creates an **event** at the given date and time for the given timezone.
+   - TZ options: NA = Eastern Time, EU = Central European Time 
+   - Posts an **event announcement message** in the **event channel** 
+2. `event-channel <channel-name>`
+   - admin only
+   - Designates the channel where event announcements will be posted.
+3. `add-role <role-name>`
+   - admin only
    - Adds a participant role for matches
-5. `config-roles-remove <role-name emoji-name>`
-   - Remove participant role
-6. `config-roles-min <role-name min>`
-   - Set the minimum role population parameter
-7. `config-roles-max <role-name max>`
-   - Set maximum role population parameter
-8. `show-ratings`
-   - Displays a list of all player ratings in the admin channel
+   - Uses an emoji already present on the server with the given name
+4. `activate-role / deactivate-role <role-name>`
+   - admin only
+   - Sets given role to active or inactive, respectively
+5. `roles-min-max <role-name min max>`
+   - admin only
+   - Set the min and max role population parameter
+6. `list-rated-players`
+   - Displays a list of all players signed up for the league
+7. `enter-league`
+   - Create a rated player record if there is none. Give league member role. active to true
+8. `leave-league`
+   - Set rated player active false. remove discord role
+9.  `member-role <role name>`
+    - admin only
+    - Designates a role in the guild as the league member role
+10. `matchmake`
+    - admin only
+    - Consider the next upcoming event on the server
+    - Count participants among league members who've role-reacted to the event
+    - use matchmaking algorithm to create matched player records
+    - display teams
+11. `kick <user tag>`
+    - deactivates a league member
+12. `ban <user tag>`
+    - deactivates and prevents league member from joining in the future
+13. `help`
+    - display a list of commands and these descriptions
 
-### Participant Actions
-1. Add reaction to **primary role** or **secondary role** announcement message
-   - If this is a participant's first reaction, they are now **RSVP**d to the match and thus add to the total number of participants
-   - Adds the given role to the list of that participant's primary or secondary roles for the match
-   - Participants are not permitted to react to both primary and secondary role announcement messages with the same role
-
-2. Remove reaction 
-   - Removes a role from a participant's list of primary secondary roles
-   - If both lists are now empty, the participant is no longer RSVPd to the match. Match population decreased by one
 
 ## Technical Specifications
-### Scuffed schema sketch: 
+### Schema sketch: 
 https://docs.google.com/spreadsheets/d/1ZfkumlYtyvH29dL8cPyJHThUyCiRZYh9lvjmKGelFQ4/edit?usp=sharing
-### to be added
