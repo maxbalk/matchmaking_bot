@@ -2,11 +2,20 @@
   "dependencies": {
     "discord.js": "^12.5.3",
     "moment": "^2.29.1",
+    "nodemon": "^2.0.10",
+    "prettier": "^2.3.2",
     "sequelize": "^6.6.4",
-    "sqlite3": "^5.0.2"
+    "sqlite3": "^5.0.2",
+    "yarn": "^1.22.10"
   },
   "devDependencies": {
-    "eslint": "^7.29.0",
-    "ts-node": "10.0.0"
+    "eslint": "^7.29.0"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "ts-node app.ts",
+    "start": "nodemon ./dist/app.js",
+    "prod": "yarn build && yarn start",
+    "format": "prettier-standard '**/*.ts'"
   }
 }

@@ -1,3 +1,4 @@
+import { Model } from "sequelize/types";
 
 const Discord = require('discord.js');
 const fs = require('fs');
@@ -18,7 +19,7 @@ client.once('ready', () => {
 async function registerLeagues(){
 	const leagues = Models.league();
 	const guilds = client.guilds.cache.array();
-	for (guild of guilds) {
+	for (let guild of guilds) {
 		const league = await leagues.findOne({ 
 			where: {guild_id: guild.id}
 		});
