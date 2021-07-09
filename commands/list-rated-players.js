@@ -13,19 +13,15 @@ module.exports = {
                 active: true
             }
         });
-        // let listOfPlayers = affectedRows.map(row => {
-        //     memberItem = message.guild.members.cache.find(member => member.id == row.user_id)
-        //     if (memberItem) return memberItem;
-        // });
         let responseList = []
-        for (player of message.guild.members.cache.array()){
-            for (ratedPlayer of affectedRows){
-                if (Number(player.user.id) == ratedPlayer.user_id){
-                    responseList.push(`${player.user.tag} elo: ${ratedPlayer.elo}`)
-                }
+        let listOfPlayers = affectedRows.map(row => {
+            memberItem = message.guild.members.cache.find(member => member.user.id == row.user_id)
+            if (memberItem) {
+                responseList.push(`${memberItem.user.tag} elo: ${row.elo}`)
             }
-        }
-        //message.channel.send(`List of players:\n${listOfPlayers.join('\n')} `);
-		
+        });
+        
+        message.channel.send(`List of players:\n${responseList.join('\n')} `);
+        
     },
 };
