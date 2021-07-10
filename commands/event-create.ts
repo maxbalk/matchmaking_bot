@@ -1,5 +1,6 @@
 import moment = require('moment-timezone');
 import Discord = require('discord.js');
+import { CommandClient } from '../app';
 import League = require('../lib/league');
 import Role = require('../lib/role');
 import Event = require('../lib/event');
@@ -13,7 +14,7 @@ const TimeZones = {
 export = {
 	name: 'event-create',
 	description: 'Create Match Announcement',
-	async execute(message: Message, args: Array<string>) {
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		
 		let timeZone = args.pop()
 		try {

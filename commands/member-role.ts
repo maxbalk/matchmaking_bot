@@ -1,10 +1,11 @@
 import { Message } from 'discord.js';
 import League = require('../lib/league')
+import { CommandClient } from '../app';
 
 module.exports = {
 	name: 'member-role',
 	description: 'Sets the member role name for the current league',
-	async execute(message: Message, args: Array<string>) {
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
         const roleName = args.join(' ');
         const match = message.guild.roles.cache
             .filter(role => role.name == roleName);

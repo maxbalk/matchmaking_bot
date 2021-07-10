@@ -1,12 +1,13 @@
 import { Message } from 'discord.js';
+import { CommandClient } from '../app';
 import Role = require('../lib/role');
 
 export = {
 	name: 'add-role',
 	description: 'Add new roles - role name must match emoji name.',
-	async execute(message: Message, args: Array<string>) {
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		
-		let roleName = args.toString();
+		let roleName = args.join(' ');
 		let guildID = message.guild.id;
 		let classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
 
@@ -22,6 +23,7 @@ export = {
 				name: roleName, guild_id: guildID 
 			} 
 		});
+		
 		if(matchingRole != null) {
 			let badRes = `Role ${roleName} already exists.`;
 			message.channel.send(badRes);

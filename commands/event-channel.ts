@@ -1,10 +1,11 @@
 import { Message } from 'discord.js';
+import { CommandClient } from '../app';
 import League = require('../lib/league')
 
 export = {
 	name: 'event-channel',
 	description: 'Sets guild channel as signup channel and sends signup message',
-	async execute(message: Message, args: Array<string>) {
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
         const match = message.guild.channels.cache
             .filter(chan => chan.type=='text' && chan.name==args[0]);

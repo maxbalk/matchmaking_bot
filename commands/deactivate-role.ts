@@ -1,10 +1,11 @@
 import { Message } from 'discord.js';
+import { CommandClient } from '../app';
 import Role = require('../lib/role')
 
 export = {
     name: 'deactivate-role',
     description: 'deactivates the specificed role.',
-    async execute(message: Message, args: Array<string>) {
+    async execute(message: Message, client: CommandClient, args: Array<string>) {
 
         const roles = Role.roles();
         const currentID = message.guild.id;

@@ -17,7 +17,17 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
     member_role_id: string;
     admin_role_id: string;
 
+    public getAdminID(guild_id: string) {
+        const guildAdmin = League.findAll({ 
+            where: {
+                guild_id: guild_id,
+            }
+        });
+        return guildAdmin;
+    }
+
 }
+
 
 function leagues () {
     const Leagues = League.init(

@@ -1,10 +1,11 @@
 import { Message } from 'discord.js';
 import RatedPlayer = require('../lib/rated_player')
+import { CommandClient } from '../app';
 
 module.exports = {
     name: 'list-rated-players',
     description: 'lists all the current rated players and their elos.',
-    async execute(message: Message, args: Array<string>) {
+    async execute(message: Message, client: CommandClient, args: Array<string>) {
         const r_table = RatedPlayer.ratedPlayers();
 
         const currentID = message.guild.id;

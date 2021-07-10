@@ -1,11 +1,12 @@
 import { Message, Role } from 'discord.js';
+import { CommandClient } from '../app';
 import League = require('../lib/league')
 import RatedPlayer = require('../lib/rated_player')
 
 export = {
 	name: 'enter-league',
 	description: 'Signup to the rated model.',
-	async execute(message: Message, args: Array<string>) {
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
 		let guildID = message.guild.id;
 		const leagues = League.leagues();
