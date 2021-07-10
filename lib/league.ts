@@ -1,5 +1,7 @@
 import { DataTypes, Model, Optional} from 'sequelize';
 import sequelize = require('./db')
+import { Message } from 'discord.js';
+import { CommandClient } from '../app';
 
 interface LeagueAttributes {
     guild_id: string;
@@ -17,13 +19,13 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
     member_role_id: string;
     admin_role_id: string;
 
-    public getAdminID(guild_id: string) {
-        const guildAdmin = League.findAll({ 
-            where: {
-                guild_id: guild_id,
-            }
-        });
-        return guildAdmin;
+    public permCheck(message: Message) {
+        let roleCheck = message.member.roles.cache.find(roles => roles.id == this.admin_role_id);
+        if(roleCheck == undefined){
+            message.channel.send('Invalid permissions.');
+            return false;
+        }
+        return true;
     }
 
 }

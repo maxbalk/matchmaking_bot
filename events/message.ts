@@ -14,6 +14,7 @@ module.exports = {
         if (!client.commands.has(commandName)) return;
         const command = client.commands.get(commandName);
         try {
+            if(message.guild.id)
             command.execute(message, client, args);
         } catch (error) {
             console.error(error);

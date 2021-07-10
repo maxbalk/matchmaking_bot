@@ -7,6 +7,13 @@ export = {
 	description: 'Sets guild channel as signup channel and sends signup message',
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
+		let guildID = message.guild.id;
+        let league = client.leagues.get(guildID);
+
+        if(!league.permCheck(message)){
+            return;
+        }
+        
         const match = message.guild.channels.cache
             .filter(chan => chan.type=='text' && chan.name==args[0]);
         if(!match.size) {

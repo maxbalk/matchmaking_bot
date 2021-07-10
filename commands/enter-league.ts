@@ -10,6 +10,7 @@ export = {
 
 		let guildID = message.guild.id;
 		const leagues = League.leagues();
+
 		let myLeague = await leagues.findOne({
 			where: { guild_id: message.guild.id }
 		})

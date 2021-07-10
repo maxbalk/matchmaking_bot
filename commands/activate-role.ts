@@ -8,14 +8,10 @@ export = {
     description: 'activates the specificed role.',
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 
-        const league = new League.League();
         const guildID = message.guild.id;
-
-        const savedName = await league.getAdminID(guildID);
-        const roleMatch = await message.member.roles.cache.find(role => role.id == savedName[0].admin_role_id);
-
-        if(roleMatch == undefined){
-            message.channel.send('Invalid permissions.');
+        
+        let league = client.leagues.get(guildID);
+        if(!league.permCheck(message)){
             return;
         }
 

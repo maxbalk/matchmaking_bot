@@ -10,6 +10,11 @@ export = {
 		let roleName = args.join(' ');
 		let guildID = message.guild.id;
 		let classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
+		
+		let league = client.leagues.get(guildID);
+        if(!league.permCheck(message)){
+            return;
+        }
 
 		if(typeof(classEmoji) == 'undefined') {
 			let badRes = `No emoji matches the role name.`;
@@ -23,7 +28,7 @@ export = {
 				name: roleName, guild_id: guildID 
 			} 
 		});
-		
+
 		if(matchingRole != null) {
 			let badRes = `Role ${roleName} already exists.`;
 			message.channel.send(badRes);

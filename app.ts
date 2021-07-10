@@ -12,7 +12,7 @@ interface Command {
 
 export class CommandClient extends Client {
 	commands: Collection<string, Command>;
-	myLeague: InstanceType<typeof League.League>;
+	leagues: Collection<string, InstanceType<typeof League.League>>;
 }
 
 const client: CommandClient = new CommandClient();
@@ -21,8 +21,8 @@ client.login(config.token);
 client.once('ready', () => {
 	registerEntities()
 	.then (registerLeagues)
-	registerEvents()
-	registerCommands()
+	.then (registerEvents)
+	.then(registerCommands)
 });
 
 async function registerEntities(){
@@ -36,14 +36,15 @@ async function registerEntities(){
 async function registerLeagues(){
 	const leagues = League.leagues();
 	const guilds = client.guilds.cache.array();
+	client.leagues = new Collection<string, InstanceType<typeof League.League>>();
+
 	for (let guild of guilds) {
 		const league = await leagues.findOne({ 
 			where: {guild_id: guild.id}
 		});
-		if (league) continue;
-		client.myLeague = league;
-		leagues.create({ guild_id: guild.id});
-		console.log(`added new league for ${guild.name}`);
+		if (!league) leagues.create({ guild_id: guild.id});
+		client.leagues.set(league.guild_id,  league);
+		console.log(`added new league for ${guild.name}, ${guild.id}`);
 	}
 }
 
