@@ -13,31 +13,13 @@ export = {
         const myLeague = await leagues.findOne({
 			where: { guild_id: message.guild.id }
 		})
-
-        // TODO: not this
-        const adminRole = myLeague.admin_role_id.toString();
+        
         const roleList = message.member.roles.cache;
-        var permCheck = false;
-        var maxWillHateThis = false;
-        for(let i = 0; i < roleList.size; i++) { 
-            if(roleList.array()[i].id != adminRole.toString()) {
-                if(roleList.array()[i].id == adminRole)
-                {
-                    permCheck = false;
-                    maxWillHateThis = true;
-                }
-                if(!maxWillHateThis)
-                {
-                    permCheck = true;
-                }
-                
-            }
-        }
-        if(permCheck) { 
+        let roleMatch = roleList.find(role => role.id == myLeague.admin_role_id)
+        if(roleMatch == undefined){
             message.channel.send('Invalid permissions.');
             return;
         }
-
 
         const roles = Role.roles();
 
