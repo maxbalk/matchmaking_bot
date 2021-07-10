@@ -13,10 +13,6 @@ class Role extends Model<RoleAttributes> implements RoleAttributes {
     active: boolean;
     guild_id: string;
 
-    public add(a,b){
-        return a + b;
-    }
-
     public async getGuildRoles(guild_id: string) {
         const guildRoles = await Role.findAll({ 
             where: {

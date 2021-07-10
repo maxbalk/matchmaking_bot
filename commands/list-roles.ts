@@ -1,13 +1,13 @@
 import { Message } from 'discord.js';
-import RolesModule = require('../lib/role')
+import Role = require('../lib/role')
 
 export = {
     name: 'list-roles',
     description: 'lists current role names in roles model.',
     async execute(message: Message, args: Array<string>) {
 
-        let roles = new RolesModule.Role()
-        const guildRoles = await roles.getGuildRoles(message.guild.id);
+        let role = new Role.Role()
+        const guildRoles = await role.getGuildRoles(message.guild.id);
     
         const listOfRoles = [];
 

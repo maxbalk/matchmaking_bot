@@ -4,7 +4,6 @@ import League = require('./lib/league');
 import Discord = require('discord.js');
 import config = require('./config.json');
 
-
 interface Command {
     name: string;
     definition: string;
@@ -13,6 +12,7 @@ interface Command {
 
 export class CommandClient extends Client {
 	commands: Collection<string, Command>;
+	myLeague: InstanceType<typeof League.League>;
 }
 
 const client: CommandClient = new CommandClient();
@@ -41,7 +41,7 @@ async function registerLeagues(){
 			where: {guild_id: guild.id}
 		});
 		if (league) continue;
-		
+		client.myLeague = league;
 		leagues.create({ guild_id: guild.id});
 		console.log(`added new league for ${guild.name}`);
 	}
