@@ -1,4 +1,4 @@
-# Fight Club GvG bot
+# Matchmaking Bot
 # Development documentation
 
 ## TODO (this documentation):
