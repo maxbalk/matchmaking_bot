@@ -1,12 +1,21 @@
-import { Model } from "sequelize/types";
-
-const Discord = require('discord.js');
-const fs = require('fs');
-const config = require('./config.json');
-const Models = require('./lib/models')
-const client = new Discord.Client();
+import fs = require('fs');
+import { Client, Collection } from 'discord.js';
+import League = require('./lib/league');
+import Discord = require('discord.js');
+import config = require('./config.json');
 
 
+interface Command {
+    name: string;
+    definition: string;
+    execute: Function;
+}
+
+export class CommandClient extends Client {
+	commands: Collection<string, Command>;
+}
+
+const client: CommandClient = new CommandClient();
 client.login(config.token);
 
 client.once('ready', () => {
@@ -16,37 +25,39 @@ client.once('ready', () => {
 	registerCommands()
 });
 
+async function registerEntities(){
+	let modelFiles = fs.readdirSync('./lib').filter(file => !file.startsWith('db'));
+	for (let file of modelFiles) {
+		let model = require(`./lib/${file}`);
+		model.self().sync()
+	}
+}
+
 async function registerLeagues(){
-	const leagues = Models.league();
+	const leagues = League.leagues();
 	const guilds = client.guilds.cache.array();
 	for (let guild of guilds) {
 		const league = await leagues.findOne({ 
 			where: {guild_id: guild.id}
 		});
 		if (league) continue;
+		
 		leagues.create({ guild_id: guild.id});
 		console.log(`added new league for ${guild.name}`);
 	}
 }
 
-async function registerEntities(){
-	for (const modelName of Object.keys(Models)) {
-		const model = Models[modelName]()
-		await model.sync()
-	}
-}
-
 async function registerCommands(){
 	client.commands = new Discord.Collection();
-	const commandFiles = fs.readdirSync('./commands/').filter(file => file.endsWith('.js'));
+	const commandFiles = fs.readdirSync('./commands/');
 	for (const file of commandFiles) {
-		const command = require(`./commands/${file}`);
+		const command: Command = require(`./commands/${file}`);
 		client.commands.set(command.name, command);
 	}
 }
 
 async function registerEvents(){
-	const eventFiles = fs.readdirSync('./events').filter(file => file.endsWith('.js'));
+	const eventFiles = fs.readdirSync('./events');
 	for (const file of eventFiles) {
 		const event = require(`./events/${file}`);
 		if (event.once) {
@@ -56,3 +67,4 @@ async function registerEvents(){
 		}
 	}
 }
+

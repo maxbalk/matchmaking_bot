@@ -1,9 +1,10 @@
-const Models = require('../lib/models')
+import { Message } from 'discord.js';
+import League = require('../lib/league')
 
 module.exports = {
 	name: 'member-role',
 	description: 'Sets the member role name for the current league',
-	async execute(message, args) {
+	async execute(message: Message, args: Array<string>) {
         const roleName = args.join(' ');
         const match = message.guild.roles.cache
             .filter(role => role.name == roleName);
@@ -13,14 +14,14 @@ module.exports = {
         }
         const role = match.array()[0];
 
-        const leagues = Models.league()
+        const leagues = League.leagues()
         const affectedRows = await leagues.update(
             { member_role_id: role.id},
             { where: {
                 guild_id: message.guild.id
             }
         });
-        if (affectedRows > 0) {
+        if (affectedRows.length > 0) {
             message.channel.send(`League member role set to: **${role.name}**`);
         } else {
             message.channel.send('There was a problem updating the league member role'); 

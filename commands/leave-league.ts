@@ -1,11 +1,14 @@
-const Models = require('../lib/models')
+import { Message } from "discord.js";
+import RatedPlayer = require('../lib/rated_player')
+import League = require('../lib/league')
 
 module.exports = {
 	name: 'leave-league',
 	description: 'Signup to the rated model.',
-	async execute(message, args) {
+	async execute(message: Message, args: Array<string>) {
+
 		var guildID = message.guild.id;
-		const leagues = Models.league()
+		const leagues = League.leagues()
 		const myLeague = await leagues.findOne({
 			where: { guild_id: message.guild.id }
 		})
@@ -18,9 +21,9 @@ module.exports = {
             return;
         }
 
-		const r_player_table = Models.rated_player();
+		const rated_players = RatedPlayer.ratedPlayers();
 
-		const matchingPlayer = await r_player_table.findOne({ 
+		const matchingPlayer = await rated_players.findOne({ 
             where: { 
                 user_id: message.author.id, 
                 guild_id: guildID 
@@ -32,19 +35,19 @@ module.exports = {
 			return;
 		}
 
-		const setRole = await message.guild.members.cache.get(message.author.id).roles.remove(role).catch(err => message.channel.send(err.toString()));
-		if(setRole.content != null)
-		{
-			if(setRole.content.includes('Missing Access')) return;	
-		}
-        const affectedRows = await r_player_table.update(
+		const setRole = await message.guild.members.cache.get(message.author.id).roles.remove(role).catch(err => {
+			message.channel.send(err.toString())
+			return;
+		});
+
+        const affectedRows = await rated_players.update(
             { active: false }, 
             { where: { 
                 user_id: message.author.id, 
                 guild_id: guildID }
             }
         );
-        if (affectedRows > 0) {
+        if (affectedRows.length > 0) {
             message.channel.send(`${message.author.tag} has successfully left the league.`);
         }
 	}

@@ -1,21 +1,24 @@
-const Models = require('../lib/models')
-const moment = require('moment-timezone')
-const Discord = require('discord.js')
-const { getGuildRoles } = require('./list-roles')
+import moment = require('moment-timezone');
+import Discord = require('discord.js');
+import League = require('../lib/league');
+import Role = require('../lib/role');
+import Event = require('../lib/event');
+import { Message } from 'discord.js';
 
 const TimeZones = {
 	'EU': 'Europe/Berlin',
 	'NA': 'America/New_York'
 }
 
-module.exports = {
+export = {
 	name: 'event-create',
 	description: 'Create Match Announcement',
-	async execute(message, args) {
+	async execute(message: Message, args: Array<string>) {
+		
 		let timeZone = args.pop()
 		try {
 			const event_date = moment.tz(args.join(' '), TimeZones[timeZone]).toString();
-			const leagues = Models.league()
+			const leagues = League.leagues()
 			const myLeague = await leagues.findOne({
 				where : {
 					guild_id: message.guild.id
@@ -37,10 +40,12 @@ module.exports = {
 		}
 		
 	},
+	TimeZones
 };
 
 async function eventAnnouncement(event_channel, event_date) {
-	const guild_roles = await getGuildRoles(event_channel.guild.id);
+	let role = new Role.Role()
+	const guild_roles = await role.getGuildRoles(event_channel.guild.id);
 
 	const eventEmbed = new Discord.MessageEmbed()
 	.setColor('#0099ff')
@@ -51,23 +56,23 @@ async function eventAnnouncement(event_channel, event_date) {
 	);
 	
 	const reactions = new Array()
-	for (role of guild_roles) {
+	for (let role of guild_roles) {
 		const classEmoji = event_channel.guild.emojis.cache.find(emoji => emoji.name === role.name);
 		reactions.push(classEmoji);
 	}
 	const announcement = await event_channel.send(eventEmbed);
-	for (reaction of reactions) {
+	for (let reaction of reactions) {
 		announcement.react(reaction)
 	}
 	return announcement.id
 }
 
 async function eventCreate(message, event_date, announcement_id) {
-	const events_table = Models.event();
+	const events = Event.events();
 	const event_guild_id = message.guild.id;
 	console.log(moment)
 	try {
-		const event = await events_table.create({
+		const event = await events.create({
 			guild_id: event_guild_id,
 			date: event_date,
 			announcement_id: announcement_id

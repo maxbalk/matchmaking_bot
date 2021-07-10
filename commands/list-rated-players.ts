@@ -1,10 +1,11 @@
-const Models = require('../lib/models')
+import { Message } from 'discord.js';
+import RatedPlayer = require('../lib/rated_player')
 
 module.exports = {
     name: 'list-rated-players',
     description: 'lists all the current rated players and their elos.',
-    async execute(message, args) {
-        const r_table = Models.rated_player();
+    async execute(message: Message, args: Array<string>) {
+        const r_table = RatedPlayer.ratedPlayers();
 
         const currentID = message.guild.id;
         const affectedRows = await r_table.findAll({ 
@@ -15,7 +16,7 @@ module.exports = {
         });
         let responseList = []
         let listOfPlayers = affectedRows.map(row => {
-            memberItem = message.guild.members.cache.find(member => member.user.id == row.user_id)
+            let memberItem = message.guild.members.cache.find(member => member.user.id == row.user_id)
             if (memberItem) {
                 responseList.push(`${memberItem.user.tag} elo: ${row.elo}`)
             }

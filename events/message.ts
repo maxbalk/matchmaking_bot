@@ -1,9 +1,11 @@
+import { Message } from "discord.js";
+import { CommandClient } from "../app"
 const config = require('../config.json');
 const prefix = config.prefix
 
 module.exports = {
 	name: 'message',
-	execute(message, client) {
+	execute(message: Message, client: CommandClient) {
         if (!message.content.startsWith(prefix) || message.author.bot) return;
 
         const args = message.content.slice(prefix.length).trim().split(/ +/);

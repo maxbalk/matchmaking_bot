@@ -1,18 +1,21 @@
-const { max } = require('moment');
-const Models = require('../lib/models')
+import { Message } from 'discord.js';
+import League = require('../lib/league');
+import Role = require('../lib/role');
 
-module.exports = {
+export = {
     name: 'activate-role',
     description: 'activates the specificed role.',
-    async execute(message, args) {
-        const leagues = Models.league();
-        const currentID = message.guild.id;
+    async execute(message: Message, args: Array<string>) {
 
-		const myLeague = await leagues.findOne({
+        const leagues = League.leagues();
+        const guildID = message.guild.id;
+
+        const myLeague = await leagues.findOne({
 			where: { guild_id: message.guild.id }
 		})
 
-        const adminRole = myLeague.admin_role_id;
+        // TODO: not this
+        const adminRole = myLeague.admin_role_id.toString();
         const roleList = message.member.roles.cache;
         var permCheck = false;
         var maxWillHateThis = false;
@@ -36,15 +39,15 @@ module.exports = {
         }
 
 
-        const roles_table = Models.roles();
+        const roles = Role.roles();
 
-        const affectedRows = await roles_table.update(
+        const affectedRows = await roles.update(
             { active: true }, 
-            { where: { name: args, guild_id: currentID }}
+            { where: { name: args, guild_id: guildID }}
         );
-        if (affectedRows > 0) {
-            return message.channel.send(`Role ${args} was activated in guild ${currentID}`);
+        if (affectedRows.length > 0) {
+            return message.channel.send(`Role ${args} was activated in guild ${guildID}`);
         }
-    message.channel.send(`Could not find a role with the name ${args} in ${currentID}.`);
+    message.channel.send(`Could not find a role with the name ${args} in ${guildID}.`);
     },
 };

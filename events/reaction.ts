@@ -1,5 +1,6 @@
-const Models = require('../lib/models');
-const { Op } = require('sequelize');
+import { Op } from 'sequelize';
+import Event = require('../lib/event');
+import Role = require('../lib/role');
 
 module.exports = {
 	//name: 'messageReactionAdd',
@@ -37,11 +38,11 @@ async function setParticipantSub(reaction){
 
 
 async function upComingEvent(reaction){
-    const events = Models.event();
+    const events = Event.events();
     const utcNow = new Date().toUTCString();
     const upComingEvent = await events.findOne({
         where: {
-            league_id: reaction.message.guild.id,
+            guild_id: reaction.message.guild.id,
             date:{
                 [Op.gte]: utcNow
             },
@@ -55,7 +56,7 @@ async function upComingEvent(reaction){
     if (reaction.emoji.name == "gvg_alternate") return "sub";
     const guild_id = reaction.message.guild.id;
     const emoji = reaction.emoji.name;
-    const roles = Models.roles();
+    const roles = Role.roles();
     const guildRole = await roles.findOne({
         where: {
             guild_id: guild_id,
