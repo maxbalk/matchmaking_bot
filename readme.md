@@ -10,17 +10,13 @@
 ## TODO (Application):
 1. start adding docstrings to methods so we can eventually use jsdoc to generate the technical specifications
 2. decide on a testing framework to use
-3. Bot permissions. Only listen to privileged roles. 
-4. !**kick** league member (set inactive)
-5. !**ban** league member (prevent discord user id from entering league)
-6. Set role min-max. can be one command. see **match_params** table in schema sketch
-7. !**help** to list bot commands
-8. !**matchmake**. set teams for the league's next event. will populate **matched player** table
+3. Set role min-max. can be one command. see **match_params** table in schema sketch
+4. !**matchmake**. set teams for the league's next event. will populate **matched player** table
    1. will show teams on matchmake by default
-9. !**show-teams** show team allocations from !matchmake
-10. Allow event announcements to listen for reactions once the bot has restarted
+5. !**show-teams** show team allocations from !matchmake
+6. Allow event announcements to listen for reactions once the bot has restarted
     1.  "Listening for reactions on old messages" discord.js guide
-11. Make bot DM registered members before event start
+7. Make bot DM registered members before event start
 
 
 
