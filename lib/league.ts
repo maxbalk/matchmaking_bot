@@ -20,6 +20,10 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
     admin_role_id: string;
 
     public permCheck(message: Message) {
+        if(!this.admin_role_id){
+            message.channel.send('Have a server administrator set a league admin role first using ```!admin-role <discord role name>```');
+            return false;
+        }
         let roleCheck = message.member.roles.cache.find(roles => roles.id == this.admin_role_id);
         if(roleCheck == undefined){
             message.channel.send('Invalid permissions.');

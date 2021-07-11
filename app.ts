@@ -42,9 +42,11 @@ async function registerLeagues(){
 		const league = await leagues.findOne({ 
 			where: {guild_id: guild.id}
 		});
-		if (!league) leagues.create({ guild_id: guild.id});
-		client.leagues.set(league.guild_id,  league);
-		console.log(`added new league for ${guild.name}, ${guild.id}`);
+		if (!league){
+			leagues.create({ guild_id: guild.id});
+			console.log(`added new league for ${guild.name}, ${guild.id}`);
+		} 
+		client.leagues.set(league.guild_id, league);
 	}
 }
 
