@@ -5,7 +5,7 @@ import Role = require('../lib/role');
 
 export = {
     name: 'activate-role',
-    description: 'activates the specificed role.',
+    description: 'Activates the specified role for use in the league.',
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 
         const guildID = message.guild.id;

@@ -4,7 +4,7 @@ import Role = require('../lib/role')
 
 export = {
     name: 'deactivate-role',
-    description: 'deactivates the specificed role.',
+    description: 'Deactivates the specificed role for use in the league.',
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 
         const roles = Role.roles();
