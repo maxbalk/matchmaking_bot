@@ -7,7 +7,7 @@ const { TimeZones } = require('./event-create')
 
 module.exports = {
 	name: 'event-get',
-	description: 'Get Match Announcement',
+	description: 'Gets the current match announcement',
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
 		let league = client.leagues.get(message.guild.id);

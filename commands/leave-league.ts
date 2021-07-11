@@ -5,7 +5,7 @@ import { CommandClient } from '../app';
 
 module.exports = {
 	name: 'leave-league',
-	description: 'Signup to the rated model.',
+	description: 'Removes self from the league.',
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
 		var guildID = message.guild.id;
@@ -16,7 +16,7 @@ module.exports = {
 		const leagueMemberRole = message.guild.roles.cache
 			.filter(role => role.id == myLeague.member_role_id).array()[0]
         try {
-		    var role = message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
+			var role = message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
         } catch (e) {
             message.channel.send(`Have you set the league member role with !member-role ?`);
             return;

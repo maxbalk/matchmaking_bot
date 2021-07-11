@@ -5,7 +5,7 @@ import RatedPlayer = require('../lib/rated_player')
 
 export = {
 	name: 'enter-league',
-	description: 'Signup to the rated model.',
+	description: 'Enters the league as a participant.',
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
 		let guildID = message.guild.id;

@@ -13,7 +13,7 @@ const TimeZones = {
 
 export = {
 	name: 'event-create',
-	description: 'Create Match Announcement',
+	description: 'Creates a match announcement.',
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		let guildID = message.guild.id;
 		let league = client.leagues.get(guildID);
