@@ -30,20 +30,6 @@ export = {
                 guild_id: message.guild.id
             }
         });
-        
-     /*    var x =  client.leagues.array()[message.guild.id];
-        var i;
-        let key: keyof CommandClient["leagues"]
-        key = CommandClient["leagues"](guildID)
-        console.log('asdsad')
-        for (i in x)
-        {
-            if(x.admin_role_id == role.name)
-            {
-                x.admin_role_id = role.name;
-            }
-        }
-        console.log(x); */
 
         if (affectedRows.length > 0) {
             message.channel.send(`League admin role set to: **${role.name}**`);

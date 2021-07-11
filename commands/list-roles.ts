@@ -1,6 +1,7 @@
 import { Message } from 'discord.js';
 import Role = require('../lib/role')
 import { CommandClient } from '../app';
+const { MessageEmbed } = require("discord.js")
 
 export = {
     name: 'list-roles',
@@ -10,13 +11,21 @@ export = {
         let role = new Role.Role()
         const guildRoles = await role.getGuildRoles(message.guild.id);
     
-        const listOfRoles = [];
+        let listOfRoles = [];
 
         for(let role of guildRoles) {
             let classEmoji = message.guild.emojis.cache.find(emoji => emoji.name == role.name);
             listOfRoles.push(`${classEmoji}  ${role.name}`);
         }
-        message.channel.send(`Active league roles:\n${listOfRoles.join('\n')} `);
+
+        const embed = new MessageEmbed()
+        .setTitle("Role List")
+        .setColor("GREEN")
+        .setDescription('Active roles in the server.')
+        for(let role of listOfRoles) {
+            embed.addField(role, 'Active')
+        }
+        message.channel.send(embed)
     },
 
 };

@@ -1,6 +1,8 @@
 import { Message } from 'discord.js';
 import RatedPlayer = require('../lib/rated_player')
 import { CommandClient } from '../app';
+const { MessageEmbed } = require("discord.js")
+
 
 module.exports = {
     name: 'list-rated-players',
@@ -15,15 +17,29 @@ module.exports = {
                 active: true
             }
         });
-        let responseList = []
+        let userNamelist = [];
+        let eloList = [];
         let listOfPlayers = affectedRows.map(row => {
             let memberItem = message.guild.members.cache.find(member => member.user.id == row.user_id)
             if (memberItem) {
-                responseList.push(`${memberItem.user.tag} elo: ${row.elo}`)
+                userNamelist.push(memberItem.user.tag)
+                eloList.push(row.elo)
+
             }
         });
-        
-        message.channel.send(`List of players:\n${responseList.join('\n')} `);
+
+        const embed = new MessageEmbed()
+        .setTitle("Role List")
+        .setColor("GREEN")
+        .setDescription('Active roles in the server.')
+        for(let list of userNamelist) {
+            for(let elo of eloList)
+            {
+                embed.addField(list, 'Elo: ' + elo)
+            }
+            
+        }
+        message.channel.send(embed)
         
     },
 };
