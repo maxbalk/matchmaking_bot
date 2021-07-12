@@ -5,6 +5,7 @@ import League = require('../lib/league')
 export = {
 	name: 'admin-role',
 	description: 'Sets the admin role name for the current league',
+    admin: false,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
         
         const roleName = args.join(' ');

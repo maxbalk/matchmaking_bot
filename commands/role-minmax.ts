@@ -7,7 +7,7 @@ export = {
     description: `set the minimum and maximum population parameters for the given role to be used in matchmaking\n
                     usage: !role-minmax <role name> <min> <max>\n
                     negative values will be set to zero`,
-
+    admin: true,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 
         if(!args || args.length != 3){
