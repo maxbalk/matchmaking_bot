@@ -17,28 +17,22 @@ module.exports = {
                 active: true
             }
         });
-        let userNamelist = [];
-        let eloList = [];
         let listOfPlayers = affectedRows.map(row => {
             let memberItem = message.guild.members.cache.find(member => member.user.id == row.user_id)
             if (memberItem) {
-                userNamelist.push(memberItem.user.tag)
-                eloList.push(row.elo)
+            //    listOfPlayers.push(`**${memberItem.user.tag}** Elo: ${row.elo}`)
+            return `**${memberItem.user.tag}** Elo: ${row.elo}`
 
             }
         });
 
+        listOfPlayers.join('\n')
+
         const embed = new MessageEmbed()
-        .setTitle("Role List")
+        .setTitle("Player List")
         .setColor("GREEN")
-        .setDescription('Active roles in the server.')
-        for(let list of userNamelist) {
-            for(let elo of eloList)
-            {
-                embed.addField(list, 'Elo: ' + elo)
-            }
-            
-        }
+        .setDescription(listOfPlayers)
+
         message.channel.send(embed)
         
     },

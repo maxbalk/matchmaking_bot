@@ -15,16 +15,15 @@ export = {
 
         for(let role of guildRoles) {
             let classEmoji = message.guild.emojis.cache.find(emoji => emoji.name == role.name);
-            listOfRoles.push(`${classEmoji}  ${role.name}`);
+            listOfRoles.push(`**${classEmoji}  ${role.name}**`);
         }
+        listOfRoles.join('\n')
 
         const embed = new MessageEmbed()
-        .setTitle("Role List")
+        .setTitle("Active Role List")
         .setColor("GREEN")
-        .setDescription('Active roles in the server.')
-        for(let role of listOfRoles) {
-            embed.addField(role, 'Active')
-        }
+        .setDescription(listOfRoles)
+
         message.channel.send(embed)
     },
 
