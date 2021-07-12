@@ -29,7 +29,7 @@ async function registerEntities(){
 	let modelFiles = fs.readdirSync(`${__dirname}/lib`).filter(file => !file.startsWith('db') && !file.endsWith('map'));
 	for (let file of modelFiles) {
 		let model = require(`${__dirname}/lib/${file}`);
-		model.self().sync()
+		model.self().sync({alter: true})
 	}
 }
 
