@@ -1,13 +1,20 @@
 import { Message } from "discord.js";
 import moment = require("moment");
 import Event = require('../lib/event')
+import { CommandClient } from '../app';
 
 const { TimeZones } = require('./event-create')
 
 module.exports = {
 	name: 'event-get',
 	description: 'Get Match Announcement',
-	async execute(message: Message, args: Array<string>) {
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
+
+		let league = client.leagues.get(message.guild.id);
+
+        if(!league.permCheck(message)){
+            return;
+        }
 		
 		let timeZone = args.pop()
         const event_date = moment.tz(args.join(' '), TimeZones[timeZone]).toString();

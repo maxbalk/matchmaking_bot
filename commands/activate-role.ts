@@ -1,43 +1,19 @@
 import { Message } from 'discord.js';
+import { CommandClient } from '../app';
 import League = require('../lib/league');
 import Role = require('../lib/role');
 
 export = {
     name: 'activate-role',
     description: 'activates the specificed role.',
-    async execute(message: Message, args: Array<string>) {
+    async execute(message: Message, client: CommandClient, args: Array<string>) {
 
-        const leagues = League.leagues();
         const guildID = message.guild.id;
-
-        const myLeague = await leagues.findOne({
-			where: { guild_id: message.guild.id }
-		})
-
-        // TODO: not this
-        const adminRole = myLeague.admin_role_id.toString();
-        const roleList = message.member.roles.cache;
-        var permCheck = false;
-        var maxWillHateThis = false;
-        for(let i = 0; i < roleList.size; i++) { 
-            if(roleList.array()[i].id != adminRole.toString()) {
-                if(roleList.array()[i].id == adminRole)
-                {
-                    permCheck = false;
-                    maxWillHateThis = true;
-                }
-                if(!maxWillHateThis)
-                {
-                    permCheck = true;
-                }
-                
-            }
-        }
-        if(permCheck) { 
-            message.channel.send('Invalid permissions.');
+        
+        let league = client.leagues.get(guildID);
+        if(!league.permCheck(message)){
             return;
         }
-
 
         const roles = Role.roles();
 

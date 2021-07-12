@@ -6,16 +6,18 @@ interface RoleAttributes {
     name: string;
     active: boolean;
     guild_id: string;
+    param_min: number;
+    param_max: number;
 }
+interface RoleCreationAttributes extends Optional<RoleAttributes, 
+    'param_min' | 'param_max'> {}
 
-class Role extends Model<RoleAttributes> implements RoleAttributes {
+class Role extends Model<RoleAttributes, RoleCreationAttributes> implements RoleAttributes {
     name: string;
     active: boolean;
     guild_id: string;
-
-    public add(a,b){
-        return a + b;
-    }
+    param_min: number;
+    param_max: number;
 
     public async getGuildRoles(guild_id: string) {
         const guildRoles = await Role.findAll({ 
@@ -39,6 +41,12 @@ function roles () {
         },
         guild_id: {
             type: DataTypes.STRING,
+        },
+        param_min: {
+            type: DataTypes.INTEGER,
+        },
+        param_max: {
+            type: DataTypes.INTEGER
         }
     },{
         sequelize

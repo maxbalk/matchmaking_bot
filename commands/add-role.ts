@@ -1,14 +1,19 @@
 import { Message } from 'discord.js';
+import { CommandClient } from '../app';
 import Role = require('../lib/role');
 
 export = {
 	name: 'add-role',
 	description: 'Add new roles - role name must match emoji name.',
-	async execute(message: Message, args: Array<string>) {
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		
-		let roleName = args.toString();
-		let guildID = message.guild.id;
+		let roleName = args.join(' ');
 		let classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
+		
+		let league = client.leagues.get(message.guild.id);
+        if(!league.permCheck(message)){
+            return;
+        }
 
 		if(typeof(classEmoji) == 'undefined') {
 			let badRes = `No emoji matches the role name.`;
@@ -19,9 +24,11 @@ export = {
 		let roles = Role.roles()
 		let matchingRole = await roles.findOne({ 
 			where: { 
-				name: roleName, guild_id: guildID 
+				name: roleName, 
+				guild_id: message.guild.id
 			} 
 		});
+
 		if(matchingRole != null) {
 			let badRes = `Role ${roleName} already exists.`;
 			message.channel.send(badRes);
@@ -30,7 +37,7 @@ export = {
 		await roles.create({
 			name: roleName,
 			active: true,
-			guild_id: guildID
+			guild_id: message.guild.id
 		});
 
 		let res = `Role ${roleName} added to the table using the ${classEmoji} emoji.`;

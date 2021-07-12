@@ -1,11 +1,12 @@
 import { Message } from 'discord.js';
+import { CommandClient } from '../app';
 import League = require('../lib/league')
 
 export = {
 	name: 'admin-role',
 	description: 'Sets the admin role name for the current league',
-	async execute(message: Message, args: Array<string>) {
-
+	async execute(message: Message, client: CommandClient, args: Array<string>) {
+        
         const roleName = args.join(' ');
         const match = message.guild.roles.cache
             .filter(role => role.name == roleName);
@@ -28,6 +29,11 @@ export = {
                 guild_id: message.guild.id
             }
         });
+
+        let league = client.leagues.get(message.guild.id)
+        league.admin_role_id = role.id;
+        client.leagues.set(message.guild.id, league)
+
         if (affectedRows.length > 0) {
             message.channel.send(`League admin role set to: **${role.name}**`);
         } else {
