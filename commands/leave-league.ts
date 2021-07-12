@@ -6,6 +6,7 @@ import { CommandClient } from '../app';
 module.exports = {
 	name: 'leave-league',
 	description: 'Signup to the rated model.',
+	admin: false,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
 		var guildID = message.guild.id;

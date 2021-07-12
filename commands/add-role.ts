@@ -5,15 +5,11 @@ import Role = require('../lib/role');
 export = {
 	name: 'add-role',
 	description: 'Add new roles - role name must match emoji name.',
+	admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		
 		let roleName = args.join(' ');
 		let classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
-		
-		let league = client.leagues.get(message.guild.id);
-        if(!league.permCheck(message)){
-            return;
-        }
 
 		if(typeof(classEmoji) == 'undefined') {
 			let badRes = `No emoji matches the role name.`;
