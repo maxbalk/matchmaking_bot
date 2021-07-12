@@ -5,24 +5,7 @@
 1. start moving everything after introduction to wiki pages
 2. document entity relations: leagues know of their matches, participants, and roles. matches also know of their participants (in app, not in storage).
 3. figure out a nice way to do the math notation in the wiki pages
-4. stop using todo lists and use github's built in kanban board
    
-## TODO (Application):
-1. start adding docstrings to methods so we can eventually use jsdoc to generate the technical specifications
-2. decide on a testing framework to use
-3. Bot permissions. Only listen to privileged roles. 
-4. !**kick** league member (set inactive)
-5. !**ban** league member (prevent discord user id from entering league)
-6. Set role min-max. can be one command. see **match_params** table in schema sketch
-7. !**help** to list bot commands
-8. !**matchmake**. set teams for the league's next event. will populate **matched player** table
-   1. will show teams on matchmake by default
-9. !**show-teams** show team allocations from !matchmake
-10. Allow event announcements to listen for reactions once the bot has restarted
-    1.  "Listening for reactions on old messages" discord.js guide
-11. Make bot DM registered members before event start
-
-
 
 ### Table of contents
   - [Introduction](#introduction)
