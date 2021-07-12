@@ -8,10 +8,9 @@ export = {
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		
 		let roleName = args.join(' ');
-		let guildID = message.guild.id;
 		let classEmoji = message.guild.emojis.cache.find(emoji => emoji.name === roleName);
 		
-		let league = client.leagues.get(guildID);
+		let league = client.leagues.get(message.guild.id);
         if(!league.permCheck(message)){
             return;
         }
@@ -25,7 +24,8 @@ export = {
 		let roles = Role.roles()
 		let matchingRole = await roles.findOne({ 
 			where: { 
-				name: roleName, guild_id: guildID 
+				name: roleName, 
+				guild_id: message.guild.id
 			} 
 		});
 
@@ -37,7 +37,7 @@ export = {
 		await roles.create({
 			name: roleName,
 			active: true,
-			guild_id: guildID
+			guild_id: message.guild.id
 		});
 
 		let res = `Role ${roleName} added to the table using the ${classEmoji} emoji.`;

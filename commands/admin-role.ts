@@ -6,6 +6,7 @@ export = {
 	name: 'admin-role',
 	description: 'Sets the admin role name for the current league',
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
+        
         const roleName = args.join(' ');
         const guildID = message.guild.id;
         const match = message.guild.roles.cache
@@ -30,6 +31,10 @@ export = {
                 guild_id: message.guild.id
             }
         });
+
+        let league = client.leagues.get(message.guild.id)
+        league.admin_role_id = role.id;
+        client.leagues.set(message.guild.id, league)
 
         if (affectedRows.length > 0) {
             message.channel.send(`League admin role set to: **${role.name}**`);

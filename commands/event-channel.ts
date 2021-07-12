@@ -7,8 +7,7 @@ export = {
 	description: 'Sets guild channel as signup channel and sends signup message',
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
-		let guildID = message.guild.id;
-        let league = client.leagues.get(guildID);
+        let league = client.leagues.get(message.guild.id);
 
         if(!league.permCheck(message)){
             return;
@@ -29,6 +28,8 @@ export = {
                 guild_id: channel.guild.id
             }
         });
+        league.event_channel_id = channel.id;
+        client.leagues.set(message.guild.id, league)
 
         if (affectedRows.length > 0) {
             message.channel.send(`Event channel set to: **${channel.name}**`);

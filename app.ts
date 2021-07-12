@@ -26,9 +26,9 @@ client.once('ready', () => {
 });
 
 async function registerEntities(){
-	let modelFiles = fs.readdirSync('./lib').filter(file => !file.startsWith('db'));
+	let modelFiles = fs.readdirSync(`${__dirname}/lib`).filter(file => !file.startsWith('db') && !file.endsWith('map'));
 	for (let file of modelFiles) {
-		let model = require(`./lib/${file}`);
+		let model = require(`${__dirname}/lib/${file}`);
 		model.self().sync()
 	}
 }
@@ -42,25 +42,27 @@ async function registerLeagues(){
 		const league = await leagues.findOne({ 
 			where: {guild_id: guild.id}
 		});
-		if (!league) leagues.create({ guild_id: guild.id});
-		client.leagues.set(league.guild_id,  league);
-		console.log(`added new league for ${guild.name}, ${guild.id}`);
+		if (!league){
+			leagues.create({ guild_id: guild.id});
+			console.log(`added new league for ${guild.name}, ${guild.id}`);
+		} 
+		client.leagues.set(league.guild_id, league);
 	}
 }
 
 async function registerCommands(){
 	client.commands = new Discord.Collection();
-	const commandFiles = fs.readdirSync('./commands/');
+	const commandFiles = fs.readdirSync(`${__dirname}/commands/`).filter(file => !file.endsWith('map'));
 	for (const file of commandFiles) {
-		const command: Command = require(`./commands/${file}`);
+		const command: Command = require(`${__dirname}/commands/${file}`);
 		client.commands.set(command.name, command);
 	}
 }
 
 async function registerEvents(){
-	const eventFiles = fs.readdirSync('./events');
+	const eventFiles = fs.readdirSync(`${__dirname}/events`).filter(file => !file.endsWith('map'));
 	for (const file of eventFiles) {
-		const event = require(`./events/${file}`);
+		const event = require(`${__dirname}/events/${file}`);
 		if (event.once) {
 			client.once(event.name, (...args) => event.execute(...args, client));
 		} else {

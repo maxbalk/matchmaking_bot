@@ -28,6 +28,10 @@ module.exports = {
                 guild_id: message.guild.id
             }
         });
+
+        league.member_role_id = role.id;
+        client.leagues.set(message.guild.id, league)
+
         if (affectedRows.length > 0) {
             message.channel.send(`League member role set to: **${role.name}**`);
         } else {
