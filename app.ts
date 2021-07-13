@@ -8,6 +8,7 @@ interface Command {
     name: string;
     definition: string;
     execute: Function;
+	admin: boolean;
 }
 
 export class CommandClient extends Client {

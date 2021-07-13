@@ -14,13 +14,8 @@ const TimeZones = {
 export = {
 	name: 'event-create',
 	description: 'Create Match Announcement',
+	admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
-		let guildID = message.guild.id;
-		let league = client.leagues.get(guildID);
-
-        if(!league.permCheck(message)){
-            return;
-        }
 		
 		let timeZone = args.pop()
 		try {

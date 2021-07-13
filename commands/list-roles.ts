@@ -5,6 +5,7 @@ import { CommandClient } from '../app';
 export = {
     name: 'list-roles',
     description: 'lists current role names in roles model.',
+    admin: false,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 
         let role = new Role.Role()

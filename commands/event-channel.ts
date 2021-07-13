@@ -5,13 +5,10 @@ import League = require('../lib/league')
 export = {
 	name: 'event-channel',
 	description: 'Sets guild channel as signup channel and sends signup message',
+    admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
         let league = client.leagues.get(message.guild.id);
-
-        if(!league.permCheck(message)){
-            return;
-        }
         
         const match = message.guild.channels.cache
             .filter(chan => chan.type=='text' && chan.name==args[0]);

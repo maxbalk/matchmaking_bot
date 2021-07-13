@@ -5,6 +5,7 @@ import { CommandClient } from '../app';
 module.exports = {
     name: 'list-rated-players',
     description: 'lists all the current rated players and their elos.',
+    admin: false,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
         const r_table = RatedPlayer.ratedPlayers();
 

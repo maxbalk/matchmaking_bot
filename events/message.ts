@@ -13,6 +13,14 @@ module.exports = {
     
         if (!client.commands.has(commandName)) return;
         const command = client.commands.get(commandName);
+
+        let league = client.leagues.get(message.guild.id);
+        if (command.admin){
+            if(!league.permCheck(message)){
+                return;
+            }
+        }
+
         try {
             if(message.guild.id)
             command.execute(message, client, args);
