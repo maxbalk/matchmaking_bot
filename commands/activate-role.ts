@@ -5,7 +5,8 @@ import Role = require('../lib/role');
 
 export = {
     name: 'activate-role',
-    description: 'activates the specificed role.',
+    description: `Activates the specificed role.\n
+                    usage: !activate-role <role name>`,
     admin: true,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 

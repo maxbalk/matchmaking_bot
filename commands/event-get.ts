@@ -7,7 +7,9 @@ const { TimeZones } = require('./event-create')
 
 module.exports = {
 	name: 'event-get',
-	description: 'Get Match Announcement',
+	description: `Looks for a match announcement.\n
+					usage: !event-get <year-day-month> <timezone>\n
+					example: !event-get 2021-09-05 19:00 NA`,
 	admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 

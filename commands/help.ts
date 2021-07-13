@@ -6,7 +6,8 @@ const { MessageEmbed } = require("discord.js")
 
 export = {
     name: 'help',
-    description: 'Lists all the bot commands and their descriptions.',
+    description: `Lists all the bot commands and their descriptions.\n
+                    usage: !help`,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
         fs.readdir("./commands/", (err, files) => {
             if(err) console.error(err);

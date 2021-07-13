@@ -6,7 +6,8 @@ const { MessageEmbed } = require("discord.js")
 
 module.exports = {
     name: 'list-rated-players',
-    description: 'lists all the current rated players and their elos.',
+    description: `Lists all the current rated players and their elos.\n
+                    usage: !list-rated-players`,
     admin: false,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
         const r_table = RatedPlayer.ratedPlayers();

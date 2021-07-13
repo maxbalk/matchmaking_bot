@@ -5,7 +5,8 @@ const { MessageEmbed } = require("discord.js")
 
 export = {
     name: 'list-roles',
-    description: 'lists current role names in roles model.',
+    description: `Lists active role names in the roles model.\n
+                    usage: !list-roles`,
     admin: false,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 
