@@ -1,6 +1,5 @@
 import { suite, test } from "@testdeck/mocha";
-import { expect } from "chai";
-import { assert } from "console";
+import { assert, expect } from "chai";
 import { Guild } from "discord.js";
 import { League, leagues } from "../lib/league";
 import MockDiscord from "./mockDiscord";
@@ -18,8 +17,7 @@ import MockDiscord from "./mockDiscord";
         this.SUT = leagues().build({guild_id: this.guild.id})
     }
 
-    @test 
-    testName () {
+    @test 'league admin message passes perm check' () {
 
         let leagueAdminRole = this.md.getRole();
         let leagueAdmin = this.md.getMember();
@@ -27,7 +25,7 @@ import MockDiscord from "./mockDiscord";
 
         leagueAdmin.roles.cache.set(leagueAdminRole.id, leagueAdminRole);
         let message = this.md.getAuthoredMessage(leagueAdmin);
-        assert(this.SUT.permCheck(message))
+        expect(this.SUT.permCheck(message)).to.be.true
     }
 
     @test 'message from league member fails perm check' () {
