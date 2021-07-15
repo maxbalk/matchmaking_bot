@@ -5,7 +5,8 @@ import RatedPlayer = require('../lib/rated_player')
 
 export = {
 	name: 'enter-league',
-	description: 'Signup to the rated model.',
+	description: `Signup to the rated model.\n
+					usage: !enter-league`,
 	admin: false,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 

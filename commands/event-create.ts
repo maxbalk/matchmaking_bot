@@ -13,7 +13,9 @@ const TimeZones = {
 
 export = {
 	name: 'event-create',
-	description: 'Create Match Announcement',
+	description: `Create a match announcement that people can signup to.\n
+					usage: !event-create <year-day-month> <time> <timezone>\n
+					example: !event-create 2021-09-05 19:00 NA`,
 	admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		

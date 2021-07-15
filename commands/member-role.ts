@@ -4,7 +4,8 @@ import { CommandClient } from '../app';
 
 module.exports = {
 	name: 'member-role',
-	description: 'Sets the member role name for the current league',
+	description: `Sets the member role name for the current league.\n
+                    usage: !member-role <role name>`,
     admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
         let league = client.leagues.get(message.guild.id);

@@ -4,7 +4,7 @@ import { CommandClient } from '../app';
 
 export = {
     name: 'role-minmax',
-    description: `set the minimum and maximum population parameters for the given role to be used in matchmaking\n
+    description: `Set the minimum and maximum population parameters for the given role to be used in matchmaking\n
                     usage: !role-minmax <role name> <min> <max>\n
                     negative values will be set to zero`,
     admin: true,
