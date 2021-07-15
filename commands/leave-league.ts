@@ -26,7 +26,7 @@ module.exports = {
 
 		const matchingPlayer = await rated_players.findOne({ 
             where: { 
-                user_id: message.author.id, 
+                user_id: message.member.id, 
                 guild_id: guildID 
             } });
 
@@ -36,7 +36,7 @@ module.exports = {
 			return;
 		}
 
-		const setRole = await message.guild.members.cache.get(message.author.id).roles.remove(role).catch(err => {
+		const setRole = await message.guild.members.cache.get(message.member.id).roles.remove(role).catch(err => {
 			message.channel.send(err.toString())
 			return;
 		});
@@ -44,7 +44,7 @@ module.exports = {
         const affectedRows = await rated_players.update(
             { active: false }, 
             { where: { 
-                user_id: message.author.id, 
+                user_id: message.member.id, 
                 guild_id: guildID }
             }
         );

@@ -55,4 +55,8 @@ function roles () {
     return Roles;
 }
 
-export = { Role, roles, self: roles };
+function sync () {
+    roles().sync();
+}
+
+export = { Role, roles, sync };

@@ -1,0 +1,4 @@
+{
+"require": "./mocha.js",
+"reporter": "dot"
+}

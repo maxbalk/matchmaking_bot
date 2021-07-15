@@ -17,7 +17,7 @@ module.exports = {
         });
         let responseList = []
         let listOfPlayers = affectedRows.map(row => {
-            let memberItem = message.guild.members.cache.find(member => member.user.id == row.user_id)
+            let memberItem = message.guild.members.cache.find(member => member.id == row.user_id)
             if (memberItem) {
                 responseList.push(`${memberItem.user.tag} elo: ${row.elo}`)
             }

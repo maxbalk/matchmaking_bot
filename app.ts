@@ -29,7 +29,7 @@ async function registerEntities(){
 	let modelFiles = fs.readdirSync(`${__dirname}/lib`).filter(file => !file.startsWith('db') && !file.endsWith('map'));
 	for (let file of modelFiles) {
 		let model = require(`${__dirname}/lib/${file}`);
-		model.self().sync()
+		model.sync()
 	}
 }
 
@@ -39,11 +39,11 @@ async function registerLeagues(){
 	client.leagues = new Collection<string, InstanceType<typeof League.League>>();
 
 	for (let guild of guilds) {
-		const league = await leagues.findOne({ 
+		let league = await leagues.findOne({ 
 			where: {guild_id: guild.id}
 		});
 		if (!league){
-			leagues.create({ guild_id: guild.id});
+			league = await leagues.create({ guild_id: guild.id});
 			console.log(`added new league for ${guild.name}, ${guild.id}`);
 		} 
 		client.leagues.set(league.guild_id, league);

@@ -59,4 +59,8 @@ function leagues () {
     return Leagues;
 }
 
-export = { League, leagues, self: leagues};
+function sync () {
+    leagues().sync();
+}
+
+export { League, leagues, sync }
