@@ -41,4 +41,9 @@ function events () {
     return Events;
 }
 
-export = { Event, events, self: events};
+// can we find a way to abstract this out of every file
+function sync () {
+    events().sync();
+}
+
+export { Event, events, sync};

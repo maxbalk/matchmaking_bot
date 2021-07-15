@@ -46,4 +46,8 @@ function ratedPlayers () {
     return RatedPlayers;
 }
 
-export = { RatedPlayer, ratedPlayers, self: ratedPlayers };
+function sync () {
+    ratedPlayers().sync();
+}
+
+export = { RatedPlayer, ratedPlayers, sync };

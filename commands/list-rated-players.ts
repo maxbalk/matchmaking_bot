@@ -20,7 +20,7 @@ module.exports = {
             }
         });
         let listOfPlayers = affectedRows.map(row => {
-            let memberItem = message.guild.members.cache.find(member => member.user.id == row.user_id)
+            let memberItem = message.guild.members.cache.find(member => member.id == row.user_id)
             if (memberItem) {
             //    listOfPlayers.push(`**${memberItem.user.tag}** Elo: ${row.elo}`)
             return `**${memberItem.user.tag}** Elo: ${row.elo}`
