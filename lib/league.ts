@@ -31,7 +31,14 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         }
         return true;
     }
-
+    public async getLeagueChannel(guild_id: string) {
+        const leagueChannel = await League.findAll({ 
+            where: {
+                guild_id: guild_id
+                }
+        });
+        return leagueChannel;
+    }
 }
 
 
