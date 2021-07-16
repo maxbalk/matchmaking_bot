@@ -84,12 +84,8 @@
     - Count participants among league members who've role-reacted to the event
     - use matchmaking algorithm to create matched player records
     - display teams
-11. `kick <user tag>`
-    - deactivates a league member
-12. `ban <user tag>`
-    - deactivates and prevents league member from joining in the future
-13. `help`
-    - display a list of commands and these descriptions
+11. `help`
+    - display a list of commands and their descriptions
 
 
 ## Technical Specifications

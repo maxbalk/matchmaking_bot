@@ -1,5 +1,7 @@
 import { DataTypes, Model, Optional} from 'sequelize';
 import sequelize = require('./db')
+import moment = require("moment");
+import { Op } from 'sequelize';
 
 interface EventAttributes {
     event_id: number;
@@ -15,6 +17,19 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
     guild_id: string;
     date: Date;
     announcement_id: string;
+
+    public async getGuildEvents(guild_id: string) {
+        const utcNow = new Date().toUTCString();
+        const guildEvents = await Event.findAll({ 
+            where: {
+                guild_id: guild_id,
+                date:{
+                    [Op.gte]: utcNow
+                }
+            }
+        });
+        return guildEvents;
+    }
 }
 
 function events () {
@@ -41,4 +56,9 @@ function events () {
     return Events;
 }
 
-export = { Event, events, self: events};
+// can we find a way to abstract this out of every file
+function sync () {
+    events().sync();
+}
+
+export { Event, events, sync};

@@ -4,7 +4,8 @@ import Role = require('../lib/role');
 
 export = {
 	name: 'add-role',
-	description: 'Add new roles - role name must match emoji name.',
+	description: `Add new roles - role name must match emoji name.\n
+					usage: !add-role <role name>`,
 	admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 		

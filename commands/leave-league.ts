@@ -5,7 +5,8 @@ import { CommandClient } from '../app';
 
 module.exports = {
 	name: 'leave-league',
-	description: 'Signup to the rated model.',
+	description: `Leave the rated model.\n
+					usage: !leave-league`,
 	admin: false,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
@@ -17,7 +18,7 @@ module.exports = {
 		const leagueMemberRole = message.guild.roles.cache
 			.filter(role => role.id == myLeague.member_role_id).array()[0]
         try {
-		    var role = message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
+			var role = message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
         } catch (e) {
             message.channel.send(`Have you set the league member role with !member-role ?`);
             return;
@@ -27,7 +28,7 @@ module.exports = {
 
 		const matchingPlayer = await rated_players.findOne({ 
             where: { 
-                user_id: message.author.id, 
+                user_id: message.member.id, 
                 guild_id: guildID 
             } });
 
@@ -37,7 +38,7 @@ module.exports = {
 			return;
 		}
 
-		const setRole = await message.guild.members.cache.get(message.author.id).roles.remove(role).catch(err => {
+		const setRole = await message.guild.members.cache.get(message.member.id).roles.remove(role).catch(err => {
 			message.channel.send(err.toString())
 			return;
 		});
@@ -45,7 +46,7 @@ module.exports = {
         const affectedRows = await rated_players.update(
             { active: false }, 
             { where: { 
-                user_id: message.author.id, 
+                user_id: message.member.id, 
                 guild_id: guildID }
             }
         );

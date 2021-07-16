@@ -5,7 +5,8 @@ import RatedPlayer = require('../lib/rated_player')
 
 export = {
 	name: 'enter-league',
-	description: 'Signup to the rated model.',
+	description: `Signup to the rated model.\n
+					usage: !enter-league`,
 	admin: false,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
@@ -31,7 +32,7 @@ export = {
 		const rated_players = RatedPlayer.ratedPlayers();
 		let matchingPlayer = await rated_players.findOne({ 
 			where: { 
-				user_id: message.author.id, 
+				user_id: message.member.id, 
 				guild_id: guildID
 			} 
 		});
@@ -42,14 +43,14 @@ export = {
 			return;
 		}
 
-		await message.guild.members.cache.get(message.author.id).roles.add(role).catch(error => {
+		await message.guild.members.cache.get(message.member.id).roles.add(role).catch(error => {
 			console.log(error);
 			return;
 		});
 
 		if(matchingPlayer == null){
 			const new_rated_player = rated_players.create({
-				user_id: message.author.id,
+				user_id: message.member.id,
 				elo: 1000,
 				guild_id: guildID,
 				active: true
@@ -59,7 +60,7 @@ export = {
 			const reJoinedPlayer = rated_players.update(
 				{ active: true },
 				{ where: {
-					user_id: message.author.id,
+					user_id: message.member.id,
 					guild_id: guildID
 				}}
 			)
