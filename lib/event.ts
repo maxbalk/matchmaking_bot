@@ -8,7 +8,7 @@ interface EventAttributes {
     announcement_id: string;
 }
 interface EventCreationAttributes extends Optional<EventAttributes, 
-    'event_id'> {}
+    'event_id' | 'date' | 'announcement_id'> {}
 
 class Event extends Model<EventAttributes, EventCreationAttributes> implements EventAttributes {
     event_id: number;
