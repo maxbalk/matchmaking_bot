@@ -1,6 +1,5 @@
 import { suite, test } from "@testdeck/mocha";
-import { assert, expect } from "chai";
-import { Guild } from "discord.js";
+import { expect } from "chai";
 import { League, leagues } from "../lib/league";
 import MockDiscord from "./mockDiscord";
 
@@ -9,12 +8,10 @@ import MockDiscord from "./mockDiscord";
 
     private md: MockDiscord;
     private SUT: League;
-    private guild: Guild;
 
     before(){
         this.md = new MockDiscord();
-        this.guild = this.md.getGuild();
-        this.SUT = leagues().build({guild_id: this.guild.id})
+        this.SUT = leagues().build({guild_id: this.md.getGuild().id})
     }
 
     @test 'league admin message passes perm check' () {
@@ -24,8 +21,9 @@ import MockDiscord from "./mockDiscord";
         this.SUT.admin_role_id = leagueAdminRole.id;
 
         leagueAdmin.roles.cache.set(leagueAdminRole.id, leagueAdminRole);
-        let message = this.md.getAuthoredMessage(leagueAdmin);
-        expect(this.SUT.permCheck(message)).to.be.true
+        let message = this.md.getMessage();
+        message.member = leagueAdmin;
+        expect(this.SUT.permCheck(message)).to.be.true;
     }
 
     @test 'message from league member fails perm check' () {
@@ -34,8 +32,9 @@ import MockDiscord from "./mockDiscord";
         this.SUT.admin_role_id = "not a matching role id";
         
         leagueMember.roles.cache.set(leagueMemberRole.id, leagueMemberRole);
-        let message = this.md.getAuthoredMessage(leagueMember);
-        expect(this.SUT.permCheck(message)).to.be.false
+        let message = this.md.getMessage();
+        message.member = leagueMember;
+        expect(this.SUT.permCheck(message)).to.be.false;
     }
 
 

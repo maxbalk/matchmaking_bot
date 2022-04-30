@@ -1,7 +1,6 @@
 import { DataTypes, Model, Optional} from 'sequelize';
 import sequelize = require('./db')
 import { Message } from 'discord.js';
-import { CommandClient } from '../app';
 
 interface LeagueAttributes {
     guild_id: string;

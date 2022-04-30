@@ -1,10 +1,10 @@
 import {
-    Channel, Guild, GuildChannel, Message,
+    Channel, Emoji, Guild, GuildChannel, Message,
     Role, TextChannel, User
 } from "discord.js";
 
 import { CommandClient } from '../app';
-import { MockGuild, MockMember, MockMessage } from './mockDiscordStructures'
+import { MockGuild, MockMember, MockMessage, MockTextChannel, MockUser } from './mockDiscordStructures'
 
 
 export default class MockDiscord {
@@ -13,7 +13,7 @@ export default class MockDiscord {
     private channel!: Channel;
     private guildChannel!: GuildChannel;
     private textChannel!: TextChannel;
-    private user!: User;
+    private user!: MockUser;
     private role!: Role;
     private member!: MockMember;
 
@@ -23,7 +23,7 @@ export default class MockDiscord {
         this.mockChannel();
         this.mockGuildChannel();
         this.mockTextChannel();
-        this.mockUser();
+        this.user = this.mockUser();
         this.mockMember();
         this.role = this.mockRole();
         this.guild.roles.add(this.mockRole(), this.guild.id)        
@@ -37,7 +37,7 @@ export default class MockDiscord {
         return this.client;
     }
 
-    public getGuild(): Guild {
+    public getGuild(): MockGuild {
         return this.guild;
     }
 
@@ -49,11 +49,11 @@ export default class MockDiscord {
         return this.guildChannel;
     }
 
-    public getTextChannel(): TextChannel {
+    public getTextChannel(): MockTextChannel {
         return this.textChannel;
     }
 
-    public getUser(): User {
+    public getUser(): MockUser {
         return this.user;
     }
 
@@ -61,8 +61,17 @@ export default class MockDiscord {
         return this.member;
     }
 
-    public getAuthoredMessage(member: MockMember): Message {
-        return this.mockMessage(member);
+    public getMessage(): MockMessage {
+        return this.mockMessage();
+    }
+
+    public mockEmoji(name: string) {
+        return new Emoji(this.client,{
+            animated: false,
+            name: name,
+            id: name,
+            deleted: false
+        })
     }
 
     private mockClient(): void {
@@ -116,7 +125,7 @@ export default class MockDiscord {
     }
 
     private mockTextChannel(): void {
-        this.textChannel = new TextChannel(this.guild, {
+        this.textChannel = new MockTextChannel(this.guild, {
             ...this.guildChannel,
 
             topic: "topic",
@@ -127,9 +136,9 @@ export default class MockDiscord {
         });
     }
 
-    private mockUser(): void {
-        this.user = new User(this.client, {
-            id: "user-id",
+    public mockUser(id="user-id"): MockUser {
+        return new MockUser(this.client, {
+            id: id,
             username: "user username",
             discriminator: "user#0000",
             avatar: "user avatar url",
@@ -156,10 +165,9 @@ export default class MockDiscord {
         this.member = mm;
     }
 
-    private mockMessage(member: MockMember): MockMessage {
+    private mockMessage (): MockMessage {
         return new MockMessage(
             this.client,
-            member,
             {
                 id: "message-id",
                 type: "DEFAULT",
