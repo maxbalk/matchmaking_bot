@@ -21,7 +21,8 @@ import MockDiscord from "./mockDiscord";
         this.SUT.admin_role_id = leagueAdminRole.id;
 
         leagueAdmin.roles.cache.set(leagueAdminRole.id, leagueAdminRole);
-        let message = this.md.getAuthoredMessage(leagueAdmin);
+        let message = this.md.getMessage();
+        message.member = leagueAdmin;
         expect(this.SUT.permCheck(message)).to.be.true;
     }
 
@@ -31,7 +32,8 @@ import MockDiscord from "./mockDiscord";
         this.SUT.admin_role_id = "not a matching role id";
         
         leagueMember.roles.cache.set(leagueMemberRole.id, leagueMemberRole);
-        let message = this.md.getAuthoredMessage(leagueMember);
+        let message = this.md.getMessage();
+        message.member = leagueMember;
         expect(this.SUT.permCheck(message)).to.be.false;
     }
 

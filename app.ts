@@ -22,7 +22,7 @@ client.once('ready', () => {
 	registerEntities()
 	.then (registerLeagues)
 	.then (registerEvents)
-	.then(registerCommands)
+	.then (registerCommands)
 });
 
 async function registerEntities(){
