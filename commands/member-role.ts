@@ -1,39 +1,26 @@
 import { Message } from 'discord.js';
-import League = require('../lib/league')
 import { CommandClient } from '../app';
+import matchRole from './setup'
 
-module.exports = {
+export = {
 	name: 'member-role',
 	description: `Sets the member role name for the current league.\n
                     usage: !member-role <role name>`,
     admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
         let league = client.leagues.get(message.guild.id);
-        
         const roleName = args.join(' ');
-        const match = message.guild.roles.cache
-            .filter(role => role.name == roleName);
-        if(!match.size) {
-            message.channel.send(`Could not find role ${roleName}`);
-            return;
-        }
-        const role = match.array()[0];
+        
+        const newRole = await matchRole.findMatchingRole(message, roleName);
+        const affectedRows = await league.findMemberRoleID(newRole, message.guild.id);
 
-        const leagues = League.leagues()
-        const affectedRows = await leagues.update(
-            { member_role_id: role.id},
-            { where: {
-                guild_id: message.guild.id
-            }
-        });
+       league.member_role_id = newRole;
+       client.leagues.set(message.guild.id, league)
 
-        league.member_role_id = role.id;
-        client.leagues.set(message.guild.id, league)
-
-        if (affectedRows.length > 0) {
-            message.channel.send(`League member role set to: **${role.name}**`);
+        if (Number(affectedRows) > 0) {
+            message.channel.send(`League member role set to: **${newRole}**`);
         } else {
-            message.channel.send('There was a problem updating the league member role'); 
+            message.channel.send('There was a problem updating the league member role, please read the above message.'); 
         }
-    }
+    },
 };

@@ -7,9 +7,10 @@ interface LeagueAttributes {
     event_channel_id: string;
     member_role_id: string;
     admin_role_id: string;
+    max_teamsize: number;
 }
 interface LeagueCreationAttributes extends Optional<LeagueAttributes, 
-    'event_channel_id' | 'member_role_id' | 'admin_role_id'> {}
+    'event_channel_id' | 'member_role_id' | 'admin_role_id' | 'max_teamsize'> {}
 
 class League extends Model<LeagueAttributes, LeagueCreationAttributes> implements LeagueAttributes {
 
@@ -17,6 +18,7 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
     event_channel_id: string;
     member_role_id: string;
     admin_role_id: string;
+    max_teamsize: number;
 
     public permCheck(message: Message) {
         if(!this.admin_role_id){
@@ -38,7 +40,28 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         });
         return leagueChannel;
     }
+
+    public async findMemberRoleID(role: string, guild_id: string){
+        const affectedRows = League.update(
+            { member_role_id: role},
+            { where: {
+                guild_id: guild_id
+            }
+        });
+        return affectedRows;
+    }
+    public async findAdminRoleID(role: string, guild_id: string)
+    {
+        const affectedRows = await League.update(
+            { admin_role_id: role},
+            { where: {
+                guild_id: guild_id
+            }
+        });
+        return affectedRows;
+    }
 }
+
 
 
 function leagues () {
@@ -57,6 +80,9 @@ function leagues () {
         },
         admin_role_id: {
             type: DataTypes.STRING
+        },
+        max_teamsize: {
+            type: DataTypes.NUMBER
         }
     },{
         sequelize
