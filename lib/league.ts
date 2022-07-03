@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional} from 'sequelize';
 import sequelize = require('./db')
-import { Message, Role } from 'discord.js';
+import { Guild, Message, Role } from 'discord.js';
 
 interface LeagueAttributes {
     guild_id: string;
@@ -44,6 +44,15 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
     public async updateMemberRoleID(role: string, guild_id: string){
         const affectedRows = League.update(
             { member_role_id: role},
+            { where: {
+                guild_id: guild_id
+            }
+        });
+        return affectedRows;
+    }
+    public async updateEventChannel(channel: string, guild_id: string){
+        const affectedRows = await League.update(
+            { event_channel_id: channel},
             { where: {
                 guild_id: guild_id
             }
