@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional} from 'sequelize';
 import sequelize = require('./db')
-import { Message } from 'discord.js';
+import { Message, Role } from 'discord.js';
 
 interface LeagueAttributes {
     guild_id: string;
@@ -41,7 +41,7 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         return leagueChannel;
     }
 
-    public async findMemberRoleID(role: string, guild_id: string){
+    public async updateMemberRoleID(role: string, guild_id: string){
         const affectedRows = League.update(
             { member_role_id: role},
             { where: {
@@ -50,7 +50,7 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         });
         return affectedRows;
     }
-    public async findAdminRoleID(role: string, guild_id: string)
+    public async updateAdminRoleID(role: string, guild_id: string)
     {
         const affectedRows = await League.update(
             { admin_role_id: role},
@@ -61,8 +61,6 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         return affectedRows;
     }
 }
-
-
 
 function leagues () {
     const Leagues = League.init(

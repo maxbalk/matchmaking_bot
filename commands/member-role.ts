@@ -12,13 +12,12 @@ export = {
         const roleName = args.join(' ');
         
         const newRole = await matchRole.findMatchingRole(message, roleName);
-        const affectedRows = await league.findMemberRoleID(newRole, message.guild.id);
+        const affectedRows = await league.updateMemberRoleID(newRole.id, message.guild.id);
 
-       league.member_role_id = newRole;
        client.leagues.set(message.guild.id, league)
 
         if (Number(affectedRows) > 0) {
-            message.channel.send(`League member role set to: **${newRole}**`);
+            message.channel.send(`League member role set to: **${newRole.name}**`);
         } else {
             message.channel.send('There was a problem updating the league member role, please read the above message.'); 
         }
