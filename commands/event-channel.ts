@@ -10,8 +10,6 @@ export = {
     admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
-        let league = client.leagues.get(message.guild.id);
-        
         const match = message.guild.channels.cache
             .filter(chan => chan.type=='text' && chan.name==args[0]);
         if(!match.size) {
@@ -27,8 +25,6 @@ export = {
                 guild_id: channel.guild.id
             }
         });
-        league.event_channel_id = channel.id;
-        client.leagues.set(message.guild.id, league)
 
         if (affectedRows.length > 0) {
             message.channel.send(`Event channel set to: **${channel.name}**`);

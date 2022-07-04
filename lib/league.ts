@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional} from 'sequelize';
-import sequelize = require('./db')
+import { sequelize } from './db'
 import { Message } from 'discord.js';
 
 interface LeagueAttributes {
@@ -30,14 +30,15 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         }
         return true;
     }
-    public async getLeagueChannel(guild_id: string) {
-        const leagueChannel = await League.findAll({ 
-            where: {
-                guild_id: guild_id
-                }
-        });
-        return leagueChannel;
-    }
+}
+
+async function findGuildLeague(guild_id: string): Promise<League> {
+    const leagueChannel = await League.findOne({ 
+        where: {
+            guild_id: guild_id
+            }
+    });
+    return leagueChannel;
 }
 
 
@@ -65,8 +66,4 @@ function leagues () {
     return Leagues;
 }
 
-function sync () {
-    leagues().sync();
-}
-
-export { League, leagues, sync }
+export { League, leagues, findGuildLeague }

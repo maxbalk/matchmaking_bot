@@ -8,4 +8,4 @@ const sequelize: Sequelize = new Sequelize('database', 'user', 'password', {
     storage: 'database.sqlite',
 });
 
-export = sequelize;
+export { sequelize };

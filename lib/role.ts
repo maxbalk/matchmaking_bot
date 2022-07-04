@@ -1,5 +1,5 @@
 import { DataTypes, Model, Optional} from 'sequelize';
-import sequelize = require('./db')
+import { sequelize } from './db'
 
 
 interface RoleAttributes {
@@ -59,4 +59,4 @@ function sync () {
     roles().sync();
 }
 
-export = { Role, roles, sync };
+export { Role, roles, sync };
