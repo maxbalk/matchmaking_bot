@@ -3,12 +3,12 @@ import { CommandClient } from '../app';
 import setup from './setup'
 
 export = {
-	name: 'member-role',
-	description: `Sets the member role name for the current league.\n
-                    usage: !member-role\n
+	name: 'set-teamsize',
+	description: `Sets the max teamsize for the current league.\n
+                    usage: !set-teamsize\n
                     follow the prompt.`,
     admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
-      await setup.memberSetup(message, client);
-  }
+        await setup.setupMaxteamSize(message, client);
+    },
 };

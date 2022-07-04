@@ -1,15 +1,25 @@
 import { DataTypes, Model, Optional} from 'sequelize';
+import { Guild, Message, Role } from 'discord.js';
 import { sequelize } from './db'
-import { Message } from 'discord.js';
 
 interface LeagueAttributes {
     guild_id: string;
     event_channel_id: string;
     member_role_id: string;
     admin_role_id: string;
+    max_teamsize: number;
 }
 interface LeagueCreationAttributes extends Optional<LeagueAttributes, 
-    'event_channel_id' | 'member_role_id' | 'admin_role_id'> {}
+    'event_channel_id' | 'member_role_id' | 'admin_role_id' | 'max_teamsize'> {}
+
+async function findGuildLeague(guild_id: string): Promise<League> {
+    const leagueChannel = await League.findOne({ 
+        where: {
+            guild_id: guild_id
+            }
+    });
+    return leagueChannel;
+}
 
 class League extends Model<LeagueAttributes, LeagueCreationAttributes> implements LeagueAttributes {
 
@@ -17,6 +27,7 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
     event_channel_id: string;
     member_role_id: string;
     admin_role_id: string;
+    max_teamsize: number;
 
     public permCheck(message: Message) {
         if(!this.admin_role_id){
@@ -30,17 +41,46 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         }
         return true;
     }
-}
 
-async function findGuildLeague(guild_id: string): Promise<League> {
-    const leagueChannel = await League.findOne({ 
-        where: {
-            guild_id: guild_id
+
+    public async updateMemberRoleID(role: string, guild_id: string){
+        const affectedRows = League.update(
+            { member_role_id: role},
+            { where: {
+                guild_id: guild_id
             }
-    });
-    return leagueChannel;
+        });
+        return affectedRows;
+    }
+    public async updateEventChannel(channel: string, guild_id: string){
+        const affectedRows = await League.update(
+            { event_channel_id: channel},
+            { where: {
+                guild_id: guild_id
+            }
+        });
+        return affectedRows;
+    }
+    public async updateAdminRoleID(role: string, guild_id: string)
+    {
+        const affectedRows = await League.update(
+            { admin_role_id: role},
+            { where: {
+                guild_id: guild_id
+            }
+        });
+        return affectedRows;
+    }
+    public async updateMaxTeamSize(size: number, guild_id: string){
+        const affectedRows = await League.update(
+            { max_teamsize: size},
+            { where: {
+                guild_id: guild_id
+            }
+        });
+        return affectedRows;
+    }
 }
-
 
 function leagues () {
     const Leagues = League.init(
@@ -58,6 +98,9 @@ function leagues () {
         },
         admin_role_id: {
             type: DataTypes.STRING
+        },
+        max_teamsize: {
+            type: DataTypes.NUMBER
         }
     },{
         sequelize
