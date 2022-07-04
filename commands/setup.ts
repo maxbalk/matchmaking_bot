@@ -1,6 +1,6 @@
-import { channel } from "diagnostics_channel";
 import { Message, Role } from "discord.js";
 import { CommandClient } from "../app";
+import { findGuildLeague } from "../lib/league";
 
 class abortSetup extends Error {}
 
@@ -45,7 +45,7 @@ export = {
 
   async adminSetup(message: Message, client: CommandClient) {
     const guildID = message.guild.id;
-    let league = client.leagues.get(message.guild.id);
+    let league = await findGuildLeague(message.guild.id)
     message.channel.send("Please enter the name of the admin role");
     try {
       const adminRoleCollection = await this.collectResponse(message);
@@ -56,7 +56,6 @@ export = {
       const affectedRows = await league.updateAdminRoleID(match.id, guildID);
 
       league.admin_role_id = match;
-      client.leagues.set(message.guild.id, league);
 
       if (Number(affectedRows) > 0) {
         message.channel.send(`League admin role set to: **${match.name}**`);
@@ -73,7 +72,7 @@ export = {
     }
   },
   async eventNameSetup(message: Message, client: CommandClient) {
-    let league = client.leagues.get(message.guild.id);
+    let league = await findGuildLeague(message.guild.id)
     message.channel.send("Enter the event text channels name");
     try {
       const eventChannelColl = await this.collectResponse(message);
@@ -101,7 +100,7 @@ export = {
   },
 
   async memberSetup(message: Message, client: CommandClient) {
-    let league = client.leagues.get(message.guild.id);
+    let league = await findGuildLeague(message.guild.id)
     message.channel.send("Please enter the name of the member role");
     try {
       const memberRoleCollection = await this.collectResponse(message);
@@ -113,8 +112,6 @@ export = {
         newRole.id,
         message.guild.id
       );
-
-      client.leagues.set(message.guild.id, league);
 
       if (Number(affectedRows) > 0) {
         message.channel.send(`League member role set to: **${newRole.name}**`);
@@ -131,7 +128,7 @@ export = {
     }
   },
   async setupMaxteamSize(message: Message, client: CommandClient) {
-    let league = client.leagues.get(message.guild.id);
+    let league = await findGuildLeague(message.guild.id)
     message.channel.send('Please input the maximum team size. (For 5v5s the max teamsize would be 5)')
     try {
       const teamsizeCollection = await this.collectResponse(message);
