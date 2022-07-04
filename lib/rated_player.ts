@@ -14,6 +14,15 @@ interface RatedPlayerCreationAttributes extends Optional<RatedPlayerAttributes,
     'pid' | 'elo' | 'uncertainty' | 'guild_id'> {}
 
 
+async function findPlayer(user: User, guildId: string): Promise<RatedPlayer> {
+    return await RatedPlayer.findOne ({
+        where: {
+            user_id: user.id,
+            guild_id: guildId
+        }
+    })
+}
+
 class RatedPlayer extends Model<RatedPlayerAttributes, RatedPlayerCreationAttributes> implements RatedPlayerAttributes {
     pid: number;
     user_id: string;
@@ -57,8 +66,4 @@ function ratedPlayers () {
     return RatedPlayers;
 }
 
-function sync () {
-    ratedPlayers().sync();
-}
-
-export { RatedPlayer, ratedPlayers, sync };
+export { RatedPlayer, ratedPlayers, findPlayer };

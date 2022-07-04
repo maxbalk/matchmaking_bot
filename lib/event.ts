@@ -3,8 +3,8 @@ import { sequelize } from './db';
 import { Op } from 'sequelize';
 import { Guild, Message, User } from "discord.js";
 import { League } from "./league";
-import { RatedPlayer } from "./rated_player";
-import { Role } from "./role";
+import { RatedPlayer, findPlayer } from "./rated_player";
+import { Role, findRole } from "./role";
 
 interface EventAttributes {
     event_id: number;
@@ -91,12 +91,12 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
     public async allocatePlayers(reactions: Map<string, User[]>, uniqueUsers: Set<User>, nTeams: number): Promise<Map<number, RatedPlayer>> {
         const ratedPlayers: RatedPlayer[] = await Promise.all(
             Array.from(uniqueUsers).map( async user => {
-                return this.findPlayer(user)
+                return findPlayer(user, this.guild_id)
             })
         )
         const eventRoles: Role[] = await Promise.all(
             this.emojiNames(reactions).map( async emojiName => {
-                return this.findRole(emojiName)
+                return findRole(emojiName, this.guild_id)
             })
         )
         
@@ -114,24 +114,6 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
             if (idx > 0) res.push( [item, item[idx - 1]])
             if (idx < items.length - 1) res.push( [item, item[idx + 1]])
             return res;
-        })
-    }
-    
-    public async findRole(emojiName: string): Promise<Role> {
-        return await Role.findOne ({
-            where: {
-                name: emojiName,
-                guild_id: this.guild_id
-            }
-        })
-    }
-
-    public async findPlayer(user: User): Promise<RatedPlayer> {
-        return await RatedPlayer.findOne ({
-            where: {
-                user_id: user.id,
-                guild_id: this.guild_id
-            }
         })
     }
 
