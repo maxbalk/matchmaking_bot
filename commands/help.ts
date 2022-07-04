@@ -19,7 +19,7 @@ export = {
             
             var commandList = [];
             
-            let result = files.forEach((f, i) => {
+                files.forEach((f, i) => {
                 let props = require(`./${f}`);
                 commandList.push(props);
             });

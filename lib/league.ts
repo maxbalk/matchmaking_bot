@@ -69,6 +69,15 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         });
         return affectedRows;
     }
+    public async updateMaxTeamSize(size: number, guild_id: string){
+        const affectedRows = await League.update(
+            { max_teamsize: size},
+            { where: {
+                guild_id: guild_id
+            }
+        });
+        return affectedRows;
+    }
 }
 
 function leagues () {

@@ -13,6 +13,7 @@ export = {
     await this.adminSetup(message, client);
     await this.memberSetup(message, client);
     await this.eventNameSetup(message, client);
+    await this.setupMaxteamSize(message, client);
   },
 
   async findMatchingRole(message: Message, roleName: String) {
@@ -26,7 +27,11 @@ export = {
     const role = match.array()[0];
     return role;
   },
-  async findMatchingChannel(message: Message, client: CommandClient, channel: String) {
+  async findMatchingChannel(
+    message: Message,
+    client: CommandClient,
+    channel: String
+  ) {
     const match = message.guild.channels.cache.filter(
       (chan) => chan.type == "text" && chan.name == channel
     );
@@ -67,25 +72,32 @@ export = {
       this.adminSetup(message, client);
     }
   },
-  async eventNameSetup(message: Message, client: CommandClient){
+  async eventNameSetup(message: Message, client: CommandClient) {
     let league = client.leagues.get(message.guild.id);
-    message.channel.send('Enter the event text channels name')
-    try{
-    const eventChannelColl = await this.collectResponse(message);
-    const channels = await this.findMatchingChannel(message, client, eventChannelColl.content)
-    const affectedRows = await league.updateEventChannel(channels.id, channels.guild.id)
+    message.channel.send("Enter the event text channels name");
+    try {
+      const eventChannelColl = await this.collectResponse(message);
+      const channels = await this.findMatchingChannel(
+        message,
+        client,
+        eventChannelColl.content
+      );
+      const affectedRows = await league.updateEventChannel(
+        channels.id,
+        channels.guild.id
+      );
 
-    if (Number(affectedRows) > 0) {
+      if (Number(affectedRows) > 0) {
         message.channel.send(`Event channel set to: **${channels.name}**`);
-    } else {
-        message.channel.send('There was a problem updating the event channel'); 
+      } else {
+        message.channel.send("There was a problem updating the event channel");
+      }
+    } catch (e) {
+      if (e instanceof abortSetup) {
+        return;
+      }
+      this.eventNameSetup(message, client);
     }
-} catch (e) {
-    if (e instanceof abortSetup) {
-      return;
-    }
-    this.eventNameSetup(message, client);
-  }
   },
 
   async memberSetup(message: Message, client: CommandClient) {
@@ -116,6 +128,31 @@ export = {
         return;
       }
       this.memberSetup(message, client);
+    }
+  },
+  async setupMaxteamSize(message: Message, client: CommandClient) {
+    let league = client.leagues.get(message.guild.id);
+    message.channel.send('Please input the maximum team size. (For 5v5s the max teamsize would be 5)')
+    try {
+      const teamsizeCollection = await this.collectResponse(message);
+      if(isNaN(Number(teamsizeCollection.content))){
+        message.channel.send('Please input a valid number!')
+        this.setupMaxteamSize(message, client)
+      } else {
+        const affectedRows = await league.updateMaxTeamSize(Number(teamsizeCollection.content), message.guild.id)
+        if (Number(affectedRows) > 0) {
+          message.channel.send(`Max teamsize set to: **${teamsizeCollection.content}**`);
+        } else {
+          message.channel.send(
+            "There was a problem updating the max teamsize, please read the above message."
+          );
+        }
+      }
+    } catch (e) {
+      if (e instanceof abortSetup) {
+        return;
+      }
+      this.setupMaxteamSize(message, client);
     }
   },
 
