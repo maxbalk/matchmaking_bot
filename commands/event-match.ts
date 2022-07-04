@@ -8,14 +8,13 @@ export = {
     name: 'matchmake',
     description: '!event-match <event id> creates teams',
     async execute(message: Message, client: CommandClient, args: Array<string>) {
-		let guildID = message.guild.id;
-		let league = client.leagues.get(guildID);
+		const league = await League.findGuildLeague(message.guild.id)
 
         if(!league.permCheck(message)){
             return;
         }
         
-        let eventID = args.pop()
+        const eventID = args.pop()
 
 
     }

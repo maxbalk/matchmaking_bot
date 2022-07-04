@@ -21,7 +21,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "ts-node app.ts",
-    "test": "npx mocha 'test/**/*.test.ts' --verbose --exit",
+    "test": "npx mocha 'test/**/*.test.ts' --verbose --exit --timeout 0",
     "start": "nodemon ./dist/app.js",
     "prod": "yarn build && yarn start"
   }

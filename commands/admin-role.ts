@@ -34,10 +34,6 @@ export = {
             }
         });
 
-        let league = client.leagues.get(message.guild.id)
-        league.admin_role_id = role.id;
-        client.leagues.set(message.guild.id, league)
-
         if (affectedRows.length > 0) {
             message.channel.send(`League admin role set to: **${role.name}**`);
         } else {
