@@ -9,6 +9,6 @@ export = {
                     follow the prompt.`,
     admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
-        await setup.memberSetup(message, client);
-    },
+      await setup.memberSetup(message, client);
+  }
 };

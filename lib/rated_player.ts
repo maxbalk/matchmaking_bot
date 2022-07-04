@@ -1,22 +1,30 @@
 import { DataTypes, Model, Optional} from 'sequelize';
-import sequelize = require('./db')
+import { User } from "discord.js";
+import { sequelize } from "./db"
 
 interface RatedPlayerAttributes {
     pid: number;
     user_id: string;
     elo: number;
+    uncertainty: number;
     guild_id: string;
     active: boolean;
 }
 interface RatedPlayerCreationAttributes extends Optional<RatedPlayerAttributes, 
-    'pid'> {}
+    'pid' | 'elo' | 'uncertainty' | 'guild_id'> {}
+
 
 class RatedPlayer extends Model<RatedPlayerAttributes, RatedPlayerCreationAttributes> implements RatedPlayerAttributes {
     pid: number;
     user_id: string;
     elo: number;
+    uncertainty: number;
     guild_id: string;
     active: boolean;
+
+    public expectationToBeat(playerB: RatedPlayer): number {
+        return 1/(1+10^((playerB.elo - this.elo)/400));
+    }
 }
 
 function ratedPlayers () {
@@ -32,6 +40,9 @@ function ratedPlayers () {
         },
         elo: {
             type: DataTypes.INTEGER,
+        },
+        uncertainty: {
+            type: DataTypes.NUMBER
         },
         guild_id: {
             type: DataTypes.STRING,
@@ -50,4 +61,4 @@ function sync () {
     ratedPlayers().sync();
 }
 
-export = { RatedPlayer, ratedPlayers, sync };
+export { RatedPlayer, ratedPlayers, sync };

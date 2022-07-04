@@ -1,11 +1,12 @@
 import { Message } from "discord.js";
 import { CommandClient } from "../app"
+import { findGuildLeague } from "../lib/league";
 const config = require('../config.json');
 const prefix = config.prefix
 
-module.exports = {
+export = {
 	name: 'message',
-	execute(message: Message, client: CommandClient) {
+	async execute(message: Message, client: CommandClient) {
         if (!message.content.startsWith(prefix) || message.author.bot) return;
         const args = message.content.slice(prefix.length).trim().split(/ +/);
         const commandName = args.shift().toLowerCase();
@@ -13,7 +14,7 @@ module.exports = {
         if (!client.commands.has(commandName)) return;
         const command = client.commands.get(commandName);
 
-        let league = client.leagues.get(message.guild.id);
+        let league = await findGuildLeague(message.guild.id)
         if (command.admin){
             if(!league.permCheck(message)){
                 return;

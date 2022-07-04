@@ -14,6 +14,7 @@ export = {
             message.channel.send('Only server administrators can use this command.');
             return;
         }
+
         await matchRole.adminSetup(message, client);
     }
 };

@@ -1,6 +1,7 @@
 import { suite, test } from "@testdeck/mocha";
 import { assert, expect } from "chai";
 import { MockGuild, MockMessage, MockMessageReaction, MockTextChannel } from "./mockDiscordStructures";
+import { User } from "discord.js";
 import { Event, events } from "../lib/event";
 import { League, leagues } from "../lib/league";
 import MockDiscord from "./mockDiscord";
@@ -55,8 +56,8 @@ class MatchmakingTests {
         this.announcement.reactions.cache.set('reactionA', reactionA);
         this.announcement.reactions.cache.set('reactionB', reactionB);
         let expectation = {
-            "A": reactionA.users.cache.array(),
-            "B": reactionB.users.cache.array()
+            "A": reactionA.users.cache,
+            "B": reactionB.users.cache
         }
         let result = this.SUT.getReactions(this.announcement);
         expect(result).to.include(expectation);
@@ -78,12 +79,11 @@ class MatchmakingTests {
             let user = this.md.mockUser(String(i));
             reactionB.users.cache.set(user.id, user);
         }
-        const mockReactions = {
-            "A": reactionA.users.cache.array(),
-            "B": reactionB.users.cache.array()
-        }
+        const mockReactions = new Map<string, User[]>()
+        mockReactions.set("A", reactionA.users.cache.map((user, flake) => user))
+        mockReactions.set("B", reactionB.users.cache.map((user, flake) => user))
         // 0,6,12,18 make 4 reactors to both
-        assert(this.SUT.getNumParticipants(mockReactions) == 13);
+        assert(this.SUT.getUniqueUsers(mockReactions).size == 13);
     }
 
     @test

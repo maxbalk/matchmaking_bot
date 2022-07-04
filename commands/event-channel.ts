@@ -11,5 +11,5 @@ export = {
     admin: true,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
     setup.eventNameSetup(message, client)
-    }
+  }
 };

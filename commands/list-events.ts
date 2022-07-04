@@ -1,6 +1,6 @@
 import { Message } from 'discord.js';
-import Event = require('../lib/event')
-import League = require('../lib/league')
+import { findGuildEvents } from '../lib/event'
+import { findGuildLeague } from '../lib/league'
 import { CommandClient } from '../app';
 const { MessageEmbed } = require("discord.js")
 
@@ -11,11 +11,8 @@ export = {
     admin: false,
     async execute(message: Message, client: CommandClient, args: Array<string>) {
 
-        let event = new Event.Event()
-        let league = new League.League()
-
-        const leagueChannel = await league.getLeagueChannel(message.guild.id);
-        const guildEvents = await event.getGuildEvents(message.guild.id);
+        const leagueChannel = await findGuildLeague(message.guild.id);
+        const guildEvents = await findGuildEvents(message.guild.id);
 
         const embed = new MessageEmbed()
         .setTitle("Upcoming Event List")

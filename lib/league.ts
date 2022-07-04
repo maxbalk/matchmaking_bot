@@ -1,6 +1,6 @@
 import { DataTypes, Model, Optional} from 'sequelize';
-import sequelize = require('./db')
 import { Guild, Message, Role } from 'discord.js';
+import { sequelize } from './db'
 
 interface LeagueAttributes {
     guild_id: string;
@@ -11,6 +11,15 @@ interface LeagueAttributes {
 }
 interface LeagueCreationAttributes extends Optional<LeagueAttributes, 
     'event_channel_id' | 'member_role_id' | 'admin_role_id' | 'max_teamsize'> {}
+
+async function findGuildLeague(guild_id: string): Promise<League> {
+    const leagueChannel = await League.findOne({ 
+        where: {
+            guild_id: guild_id
+            }
+    });
+    return leagueChannel;
+}
 
 class League extends Model<LeagueAttributes, LeagueCreationAttributes> implements LeagueAttributes {
 
@@ -32,14 +41,7 @@ class League extends Model<LeagueAttributes, LeagueCreationAttributes> implement
         }
         return true;
     }
-    public async getLeagueChannel(guild_id: string) {
-        const leagueChannel = await League.findAll({ 
-            where: {
-                guild_id: guild_id
-                }
-        });
-        return leagueChannel;
-    }
+
 
     public async updateMemberRoleID(role: string, guild_id: string){
         const affectedRows = League.update(
@@ -107,8 +109,4 @@ function leagues () {
     return Leagues;
 }
 
-function sync () {
-    leagues().sync();
-}
-
-export { League, leagues, sync }
+export { League, leagues, findGuildLeague }
