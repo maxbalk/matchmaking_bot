@@ -1,10 +1,11 @@
 import { suite, test } from "@testdeck/mocha";
 import { assert, expect } from "chai";
 import { MockGuild, MockMessage, MockMessageReaction, MockTextChannel } from "./mockDiscordStructures";
-import { User } from "discord.js";
+import { User, Collection } from "discord.js";
 import { Event, events } from "../lib/event";
 import { League, leagues } from "../lib/league";
 import MockDiscord from "./mockDiscord";
+import exp from "constants";
 
 @suite
 class MatchmakingTests {
@@ -43,7 +44,7 @@ class MatchmakingTests {
     }
 
     @test
-    'gather all reactions on event announcement as a Record'() {
+    'gather all reactions on event announcement as a Map'() {
         const emojiA = this.md.mockEmoji("A");
         const emojiB = this.md.mockEmoji("B");
         const reactionA = new MockMessageReaction(this.md.getClient(), {emoji: emojiA}, this.announcement);
@@ -55,12 +56,13 @@ class MatchmakingTests {
         }
         this.announcement.reactions.cache.set('reactionA', reactionA);
         this.announcement.reactions.cache.set('reactionB', reactionB);
-        let expectation = {
-            "A": reactionA.users.cache,
-            "B": reactionB.users.cache
-        }
+        let expectation = new Map<string, User[]>()
+        expectation.set("A", Array.from(reactionA.users.cache.map(u => u)))
+        expectation.set("B", Array.from(reactionB.users.cache.map(u => u)))
+
         let result = this.SUT.getReactions(this.announcement);
-        expect(result).to.include(expectation);
+
+        result.forEach( (v, k) => assert(v.toString() == expectation.get(k).toString()))
     }
 
     @test
@@ -80,10 +82,11 @@ class MatchmakingTests {
             reactionB.users.cache.set(user.id, user);
         }
         const mockReactions = new Map<string, User[]>()
-        mockReactions.set("A", reactionA.users.cache.map((user, flake) => user))
-        mockReactions.set("B", reactionB.users.cache.map((user, flake) => user))
+        mockReactions.set("A", reactionA.users.cache.map((user) => user))
+        mockReactions.set("B", reactionB.users.cache.map((user) => user))
         // 0,6,12,18 make 4 reactors to both
-        assert(this.SUT.getUniqueUsers(mockReactions).size == 13);
+        const result = this.SUT.getUniqueUsers(mockReactions)
+        assert (result.size == 13)
     }
 
     @test
