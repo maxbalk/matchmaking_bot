@@ -50,7 +50,7 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
         const reactions: Map<string, User[]> = this.getReactions(announcement)
         const uniqueUsers: Set<User> = this.getUniqueUsers(reactions)
         const nTeams: number = Math.floor(uniqueUsers.size / teamsize)
-        const teams: Map<number, RatedPlayer> = await allocatePlayers(reactions, uniqueUsers, nTeams)
+        const teams: Map<number, RatedPlayer> = await allocatePlayers(reactions, uniqueUsers, nTeams, this.guild_id)
         console.log(reactions)
     }
 
@@ -113,4 +113,4 @@ function events () {
     return Events;
 }
 
-export { Event, events, findGuildEvents};
+export { Event, events, findGuildEvents, findEvent};

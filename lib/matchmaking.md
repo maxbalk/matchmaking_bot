@@ -9,7 +9,7 @@
 - insert difference into list (sorted order)
 - continue until one number remains, the subset difference
 
-
+## CKK tree construction
 Take initial set of numbers, with the largest being the root node of the tree in its own subset
 
 - Left child, the next largest number is placed into subset with largest
@@ -24,3 +24,11 @@ If the largest element is greater than the sum of remaining elements, prune the 
 Keep track of the subset differences at each leaf node. 
 
 Partition by backtracking reconstruction.
+
+## Complete Balanced CKK
+
+1. Sort players by decreasing elo
+2. create pairs of players that include neighbors above and below
+3. sort this subset of pairs by decreasing diff
+4. find subset of non intersecting pairs with the least diff
+5. build CKK tree with above pair subset
