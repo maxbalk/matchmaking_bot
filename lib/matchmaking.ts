@@ -19,9 +19,11 @@ async function allocatePlayers(reactions: Map<string, User[]>, uniqueUsers: Set<
 
     const userRoleMap: Map<User, Role[]> = invertReactionMap(reactions, uniqueUsers, eventRoles)
     const playerRoleMap: Map<RatedPlayer, Role[]> = ratedPlayerMap(userRoleMap, ratedPlayers)
-    const roleAssignmentMap: Map<Role, RatedPlayer[]> = createRoleAssignmentMap(eventRoles)
-    const pairedPlayerAssignmentmap: Map<Role, RatedPlayer[]> = createPairs(ratedPlayers, playerRoleMap, roleAssignmentMap, new Array<RatedPlayer>())
-    const firstFruit = initialFruit(pairedPlayerAssignmentmap);
+    const initialRoleMap: Map<Role, Fruit[]> = initialRoleAssignmentMap(eventRoles)
+    const roleAssignmentMap: Map<Role, Fruit[]> = assignRoles(ratedPlayers, playerRoleMap, initialRoleMap, new Array<RatedPlayer>())
+
+    const firstFruit = Array.from(roleAssignmentMap).flatMap( ([role, fruit]) => fruit)
+
     const root = new TreeNode(firstFruit)
     const tree = buildTree(root)
 
@@ -55,8 +57,8 @@ function ratedPlayerMap(userRoleMap: Map<User, Role[]>, ratedPlayers: RatedPlaye
 /**
  * To keep track of role assignments as players are paired up
  */
-function createRoleAssignmentMap(eventRoles: Role[]): Map<Role, RatedPlayer[]> {
-    return new Map<Role, RatedPlayer[]>(eventRoles.map((er) => [er, new Array<RatedPlayer>()]));
+function initialRoleAssignmentMap(eventRoles: Role[]): Map<Role, Fruit[]> {
+    return new Map<Role, Fruit[]>(eventRoles.map((er) => [er, new Array<Fruit>()]));
 }
 
 /**
@@ -64,64 +66,40 @@ function createRoleAssignmentMap(eventRoles: Role[]): Map<Role, RatedPlayer[]> {
  * @param players rated players sorted by decreasing elo
  * @param playerRoleMap rated players mapped to their potential roles
  * @param roleAssignmentMap roles mapped to empty array of players
- * @param pairedPlayers empty rated player array to keep track 
+ * @param assigned empty rated player array to keep track 
  * @returns role assignmentMap with player arrays populated
  */
-function createPairs(players: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, RatedPlayer[]>, pairedPlayers: Array<RatedPlayer>): Map<Role, RatedPlayer[]> {
+function assignRoles(players: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, Fruit[]>, assigned: Array<RatedPlayer>): Map<Role, Fruit[]> {
     let assignedSize = Array.from(roleAssignmentMap).reduce( (accum, [role, rolePlayers]) => accum + rolePlayers.length, 0)
     if(assignedSize == players.length) return roleAssignmentMap; // number of assigned players equal to number of players
     
-    let unpairedPlayers = players.filter(player => !pairedPlayers.includes(player))
-    let currPlayer = unpairedPlayers.shift()                                        
+    let unassigned = players.filter(player => !assigned.includes(player))
+    let currPlayer = unassigned.shift()                                        
 
-    let playersWithSharedRoles = getPlayersWithSharedRoles(currPlayer, unpairedPlayers, playerRoleMap, roleAssignmentMap);
+    let playersWithSharedRoles = getPlayersWithSharedRoles(currPlayer, unassigned, playerRoleMap, roleAssignmentMap);
 
-    let assignmentMap = roleAssignmentMap
     if(playersWithSharedRoles.length > 0){
         let partner = playersWithSharedRoles[0]
-        assignmentMap = pairPlayers(currPlayer, partner, roleAssignmentMap, playerRoleMap)
-        pairedPlayers.push(currPlayer, partner)
-    } 
-    return createPairs(unpairedPlayers, playerRoleMap, assignmentMap, pairedPlayers);
+        let sharedRoles = playerRoleMap.get(partner).filter(role => playerRoleMap.get(currPlayer).includes(role))
+        sharedRoles.sort((a, b) => a.param_min - roleAssignmentMap.get(a).length > b.param_min - roleAssignmentMap.get(b).length ? -1 : 1)
+        roleAssignmentMap.get(sharedRoles[0]).push(new Fruit(currPlayer.elo - partner.elo, currPlayer, partner))
+        assigned.push(currPlayer, partner)
+    } else {
+        playerRoleMap.get(currPlayer).sort((a,b) => a.param_min - roleAssignmentMap.get(a).length > b.param_min - roleAssignmentMap.get(b).length ? -1 : 1)
+        roleAssignmentMap.get(playerRoleMap.get(currPlayer)[0]).push(new Fruit(currPlayer.elo, currPlayer, null))
+        assigned.push(currPlayer)
+    }
+    return assignRoles(unassigned, playerRoleMap, roleAssignmentMap, assigned);
 }
 
-function getPlayersWithSharedRoles(currPlayer: RatedPlayer, unpairedPlayers: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, RatedPlayer[]>): RatedPlayer[] {
+function getPlayersWithSharedRoles(currPlayer: RatedPlayer, unpairedPlayers: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, Fruit[]>): RatedPlayer[] {
     return unpairedPlayers.filter(unpaired => {               
         let unpairedRoles = playerRoleMap.get(unpaired)                       
         unpairedRoles.filter(role =>                                          
             playerRoleMap.get(currPlayer).includes(role)                                          
-            && roleAssignmentMap.get(role).length <= role.param_max
+            && (roleAssignmentMap.get(role).length * 2) <= role.param_max
         ).length > 0
     })
-}
-
-function pairPlayers(currPlayer: RatedPlayer, partner: RatedPlayer, roleAssignmentMap: Map<Role, RatedPlayer[]>, playerRoleMap: Map<RatedPlayer, Role[]>) {
-    let sharedRoles = playerRoleMap.get(partner).filter(role => playerRoleMap.get(currPlayer).includes(role))
-    sharedRoles.sort((a, b) => a.param_min - roleAssignmentMap.get(a).length > b.param_min - roleAssignmentMap.get(b).length ? -1 : 1)
-    roleAssignmentMap.get(sharedRoles[0]).push(currPlayer, partner)
-    return roleAssignmentMap;
-}
-
-
-/**
- * Create an array of new fruit each with a reference to the original players
- */
-function initialFruit(roleAssignmentMap: Map<Role, RatedPlayer[]>): Fruit[] {
-    let fruits = new Array<Fruit>()
-    Array.from(roleAssignmentMap).forEach( ([role, players], idx) => {
-        let i = 0
-        while (i < players.length){
-            if(players[i+1]){
-                let eloDiff = players[i].elo - players[i+1].elo
-                fruits.push(new Fruit(eloDiff, players[i], players[i+1]))
-                i++
-            } else {
-                fruits.push(new Fruit(players[i].elo, players[i], null))
-            }
-            i++
-        }
-    })
-    return fruits;
 }
 
 
