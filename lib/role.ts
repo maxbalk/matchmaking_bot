@@ -12,6 +12,16 @@ interface RoleAttributes {
 interface RoleCreationAttributes extends Optional<RoleAttributes, 
     'param_min' | 'param_max'> {}
 
+
+async function findRole(emojiName: string, guildId: string): Promise<Role> {
+    return await Role.findOne ({
+        where: {
+            name: emojiName,
+            guild_id: guildId
+        }
+    })
+}
+
 class Role extends Model<RoleAttributes, RoleCreationAttributes> implements RoleAttributes {
     name: string;
     active: boolean;
@@ -55,8 +65,4 @@ function roles () {
     return Roles;
 }
 
-function sync () {
-    roles().sync();
-}
-
-export { Role, roles, sync };
+export { Role, roles, findRole };
