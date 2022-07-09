@@ -5,7 +5,6 @@ import { User, Collection } from "discord.js";
 import { Event, events } from "../lib/event";
 import { League, leagues } from "../lib/league";
 import MockDiscord from "./mockDiscord";
-import exp from "constants";
 
 @suite
 class MatchmakingTests {

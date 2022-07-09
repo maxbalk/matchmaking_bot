@@ -4,8 +4,8 @@ import { Op } from 'sequelize';
 import { Guild, Message, TextChannel, User, Collection } from "discord.js";
 import { League } from "./league";
 import { RatedPlayer } from "./rated_player";
-import { allocatePlayers } from "./matchmaking";
-
+import { Role } from "./role";
+import { roleAllocation, teamAllocation } from "./matchmaking"
 interface EventAttributes {
     event_id: number;
     guild_id: string;
@@ -50,8 +50,10 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
         const reactions: Map<string, User[]> = this.getReactions(announcement)
         const uniqueUsers: Set<User> = this.getUniqueUsers(reactions)
         const nTeams: number = Math.floor(uniqueUsers.size / teamsize)
-        const teams: Map<number, RatedPlayer> = await allocatePlayers(reactions, uniqueUsers, nTeams, this.guild_id)
-        console.log(reactions)
+        const roleAssignments: Map<Role, RatedPlayer[]> = await roleAllocation(reactions, uniqueUsers, nTeams, this.guild_id)
+        const teamAssignments: Map<number, RatedPlayer[]> = teamAllocation(roleAssignments)
+        console.log(roleAssignments)
+        console.log(teamAssignments)
     }
 
     public locateAnnouncement (event: Event, guild: Guild, league: League): Message {

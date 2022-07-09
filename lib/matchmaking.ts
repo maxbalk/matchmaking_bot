@@ -2,9 +2,12 @@ import { User } from "discord.js";
 import { findPlayer, RatedPlayer } from "./rated_player";
 import { findRole, Role } from "./role";
 
-export { allocatePlayers };
+export {roleAllocation, teamAllocation, invertReactionMap, ratedPlayerMap, initialRoleAssignmentMap, assignRoles, buildTree, findMinLeaf, backtrack, Fruit, TreeNode}
 
-async function allocatePlayers(reactions: Map<string, User[]>, uniqueUsers: Set<User>, nTeams: number, guildId: string): Promise<Map<number, RatedPlayer>> {
+/**
+ * Pair players by role and elo to assign role
+ */
+async function roleAllocation(reactions: Map<string, User[]>, uniqueUsers: Set<User>, nTeams: number, guildId: string): Promise<Map<Role, RatedPlayer[]>> {
     const ratedPlayers: RatedPlayer[] = await Promise.all(
         Array.from(uniqueUsers).map(async user => {
             return findPlayer(user, guildId)
@@ -19,25 +22,46 @@ async function allocatePlayers(reactions: Map<string, User[]>, uniqueUsers: Set<
 
     const userRoleMap: Map<User, Role[]> = invertReactionMap(reactions, uniqueUsers, eventRoles)
     const playerRoleMap: Map<RatedPlayer, Role[]> = ratedPlayerMap(userRoleMap, ratedPlayers)
-    const initialRoleMap: Map<Role, Fruit[]> = initialRoleAssignmentMap(eventRoles)
-    const roleAssignmentMap: Map<Role, Fruit[]> = assignRoles(ratedPlayers, playerRoleMap, initialRoleMap, new Array<RatedPlayer>())
+    const initialRoleMap: Map<Role, RatedPlayer[]> = initialRoleAssignmentMap(eventRoles)
+    const roleAssignmentMap: Map<Role, RatedPlayer[]> = assignRoles(ratedPlayers, playerRoleMap, initialRoleMap, new Array<RatedPlayer>())
+    return roleAssignmentMap;
+}
 
-    const firstFruit = Array.from(roleAssignmentMap).flatMap( ([role, fruit]) => fruit)
-
+/**
+ * Create pairs of role assigned players
+ * 
+ * Construct CKK tree of pairs (fruits)
+ * 
+ * Find minimum leaf node and backtrack to find teams.
+ */
+function teamAllocation(roleAssignmentMap: Map<Role, RatedPlayer[]>){
+    const firstFruit = Array.from(roleAssignmentMap).flatMap( ([role, players]) => initialFruit(players, []))
     const root = new TreeNode(firstFruit)
     const tree: TreeNode = buildTree(root)
     const minLeaf: TreeNode = findMinLeaf(tree)
     const leftFruit = minLeaf.subset.shift()
     const rightFruit = minLeaf.subset
 
-    const leftTeam: RatedPlayer[] = backtrack(leftFruit, [])
-    const rightTeam: RatedPlayer[] = rightFruit.flatMap( fruit => backtrack(fruit, []))
+    const leftPairs: Fruit[] = backtrack(leftFruit, [])
+    const rightPairs: Fruit[] = rightFruit.flatMap( fruit => backtrack(fruit, []))
 
-    const teams = new Map<number, RatedPlayer[]>()
-    teams.set(1, leftTeam)
-    teams.set(2, rightTeam)
+    return createTeams(leftPairs, rightPairs)
+}
 
-    return new Promise<Map<number, RatedPlayer>>(() => teams);
+/**
+ * Go through role assigment players by two or one and create fruit 
+ */
+function initialFruit(unpaired: RatedPlayer[], fruits: Fruit[]){
+    if(unpaired.length < 1) return fruits;
+
+    let curr = unpaired.shift()
+    if (unpaired.length > 0) {
+        let partner = unpaired.shift()
+        fruits.push(new Fruit(curr.elo - partner.elo, curr, partner))
+    } else {
+        fruits.push(new Fruit(curr.elo, curr, null))
+    }
+    return initialFruit(unpaired, fruits);
 }
 
 /**
@@ -67,8 +91,8 @@ function ratedPlayerMap(userRoleMap: Map<User, Role[]>, ratedPlayers: RatedPlaye
 /**
  * To keep track of role assignments as players are paired up
  */
-function initialRoleAssignmentMap(eventRoles: Role[]): Map<Role, Fruit[]> {
-    return new Map<Role, Fruit[]>(eventRoles.map((er) => [er, new Array<Fruit>()]));
+function initialRoleAssignmentMap(eventRoles: Role[]): Map<Role, RatedPlayer[]> {
+    return new Map<Role, RatedPlayer[]>(eventRoles.map((er) => [er, new Array<RatedPlayer>()]));
 }
 
 /**
@@ -79,7 +103,7 @@ function initialRoleAssignmentMap(eventRoles: Role[]): Map<Role, Fruit[]> {
  * @param assigned empty rated player array to keep track 
  * @returns role assignmentMap with player arrays populated
  */
-function assignRoles(players: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, Fruit[]>, assigned: Array<RatedPlayer>): Map<Role, Fruit[]> {
+function assignRoles(players: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, RatedPlayer[]>, assigned: Array<RatedPlayer>): Map<Role, RatedPlayer[]> {
     let assignedSize = Array.from(roleAssignmentMap).reduce( (accum, [role, rolePlayers]) => accum + rolePlayers.length, 0)
     if(assignedSize == players.length) return roleAssignmentMap; // number of assigned players equal to number of players
     
@@ -92,17 +116,20 @@ function assignRoles(players: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Rol
         let partner = playersWithSharedRoles[0]
         let sharedRoles = playerRoleMap.get(partner).filter(role => playerRoleMap.get(currPlayer).includes(role))
         sharedRoles.sort((a, b) => a.param_min - roleAssignmentMap.get(a).length > b.param_min - roleAssignmentMap.get(b).length ? -1 : 1)
-        roleAssignmentMap.get(sharedRoles[0]).push(new Fruit(currPlayer.elo - partner.elo, currPlayer, partner))
+        roleAssignmentMap.get(sharedRoles[0]).push(currPlayer, partner)
         assigned.push(currPlayer, partner)
     } else {
         playerRoleMap.get(currPlayer).sort((a,b) => a.param_min - roleAssignmentMap.get(a).length > b.param_min - roleAssignmentMap.get(b).length ? -1 : 1)
-        roleAssignmentMap.get(playerRoleMap.get(currPlayer)[0]).push(new Fruit(currPlayer.elo, currPlayer, null))
+        roleAssignmentMap.get(playerRoleMap.get(currPlayer)[0]).push(currPlayer)
         assigned.push(currPlayer)
     }
     return assignRoles(unassigned, playerRoleMap, roleAssignmentMap, assigned);
 }
 
-function getPlayersWithSharedRoles(currPlayer: RatedPlayer, unpairedPlayers: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, Fruit[]>): RatedPlayer[] {
+/**
+ * Filter unpaired players to those that share a role yet to be assingned its max_param times
+ */
+function getPlayersWithSharedRoles(currPlayer: RatedPlayer, unpairedPlayers: RatedPlayer[], playerRoleMap: Map<RatedPlayer, Role[]>, roleAssignmentMap: Map<Role, RatedPlayer[]>): RatedPlayer[] {
     return unpairedPlayers.filter(unpaired => {               
         let unpairedRoles = playerRoleMap.get(unpaired)                       
         unpairedRoles.filter(role =>                                          
@@ -113,6 +140,15 @@ function getPlayersWithSharedRoles(currPlayer: RatedPlayer, unpairedPlayers: Rat
 }
 
 
+/**
+ * Each tree node has an array of fruit representing the current subset.
+ * 
+ * Fruit can have 'parents' of either another fruit or a rated player
+ * 
+ * Each leaf-level fruit is a tree itself
+ * 
+ * MOM PLAYER SHOULD HAVE GREATER ELO THAN DAD PLAYER
+ */
 class Fruit {
     val: number;
     mom: Fruit | RatedPlayer;
@@ -125,6 +161,9 @@ class Fruit {
     }
 }
 
+/**
+ * Find the difference between the leftmost fruit val and the sum of other fruit vals
+ */
 function subsetDiff(subset: Fruit[]): number {
     const greatestDiff = subset.shift()
     const rightSum = subset.reduce((accum, elem) => {
@@ -133,6 +172,11 @@ function subsetDiff(subset: Fruit[]): number {
     return greatestDiff.val - rightSum
 }
 
+/**
+ * Combine the two greatest fruit into one with val of their val difference.
+ * 
+ * Insert the new fruit into the subset in sorted order
+ */
 function getLeftSub(localSub: Fruit[]): Fruit[] {
     let first = localSub.shift()
     let second = localSub.shift()
@@ -142,6 +186,10 @@ function getLeftSub(localSub: Fruit[]): Fruit[] {
     return localSub;
 }
 
+/** Combine the two greatest fruit into one with val of their val sum.
+ *  
+ * Insert the new fruit into the subset in sorted order
+ */
 function getRightSub(localSub: Fruit[]): Fruit[] {
     let first = localSub.shift()
     let second = localSub.shift()
@@ -163,7 +211,11 @@ class TreeNode {
     }
 }
 
-
+/**
+ * Nodes whose leftmost value is greater than the sum of others become leaves
+ * 
+ * Otherwise, create a right child with getRightSub and left child with getLeftSub
+ */
 function buildTree(node: TreeNode): TreeNode {
     if (node.diff > 0) {
         return node;
@@ -175,6 +227,9 @@ function buildTree(node: TreeNode): TreeNode {
     return node;
 }
 
+/**
+ * Visit nodes in preorder to find leaf with least difference
+ */
 function findMinLeaf(node: TreeNode): TreeNode {
     if(!node.left && !node.right){
         return node
@@ -184,19 +239,39 @@ function findMinLeaf(node: TreeNode): TreeNode {
     return left.diff < right.diff ? left : right
 }
 
-function backtrack(fruit: Fruit, players: RatedPlayer[]): RatedPlayer[] {
-    if(fruit.mom.hasOwnProperty('val')){
-        return players;
-    }
-    if(fruit.mom.hasOwnProperty('elo')) {
-        players.push(<RatedPlayer>fruit.mom)
+/**
+ * Find all fruits who have no fruit as parents
+ */
+function backtrack(fruit: Fruit, fruits: Fruit[]): Fruit[] {
+    if(fruit.mom.hasOwnProperty('elo') || fruit.dad.hasOwnProperty('elo')) {
+        fruits.push(fruit)
     } else {
-        players.concat(backtrack(<Fruit>fruit.mom, players))
+        if(fruit.mom) fruits.concat(backtrack(<Fruit>fruit.mom, fruits))
+        if(fruit.dad) fruits.concat(backtrack(<Fruit>fruit.dad, fruits))
     }
-    if(fruit.dad.hasOwnProperty('elo')) {
-        players.push(<RatedPlayer>fruit.mom)
-    } else {
-        players.concat(backtrack(<Fruit>fruit.dad, players))
-    }
-    return players;
+    return fruits;
+}
+
+/**
+ * All left pair moms go to left team, dads to right team
+ * 
+ * All right pair moms go to right team, dads to left team
+ */
+function createTeams(leftPairs: Fruit[], rightPairs: Fruit[]) {
+    let teams = new Map<number, RatedPlayer[]>()
+    let leftTeam: RatedPlayer[]
+    let rightTeam: RatedPlayer[]
+
+    leftPairs.forEach(fruit => {
+        leftTeam.push(<RatedPlayer>fruit.mom)
+        rightTeam.push(<RatedPlayer>fruit.dad)
+    })
+    rightPairs.forEach(fruit => {
+        leftTeam.push(<RatedPlayer>fruit.dad)
+        rightTeam.push(<RatedPlayer>fruit.mom)
+    })
+
+    teams.set(0, leftTeam)
+    teams.set(1, rightTeam)
+    return teams
 }
