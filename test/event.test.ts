@@ -7,7 +7,7 @@ import { League, leagues } from "../lib/league";
 import MockDiscord from "./mockDiscord";
 
 @suite
-class MatchmakingTests {
+class EventTest {
 
     private SUT: Event;
     private league: League;

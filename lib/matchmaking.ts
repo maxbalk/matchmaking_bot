@@ -1,25 +1,18 @@
 import { User } from "discord.js";
-import { findPlayer, RatedPlayer } from "./rated_player";
-import { findRole, Role } from "./role";
+import { RatedPlayer } from "./rated_player";
+import { Role } from "./role";
 
-export {roleAllocation, teamAllocation, invertReactionMap, ratedPlayerMap, initialRoleAssignmentMap, assignRoles, buildTree, findMinLeaf, backtrack, Fruit, TreeNode}
+export {
+    roleAllocation, teamAllocation, invertReactionMap, ratedPlayerMap, 
+    initialFruit, createFruit, assignRoles, buildTree, findMinLeaf, backtrack, 
+    createTeams, Fruit, TreeNode
+}
 
 /**
  * Pair players by role and elo to assign role
  */
-async function roleAllocation(reactions: Map<string, User[]>, uniqueUsers: Set<User>, nTeams: number, guildId: string): Promise<Map<Role, RatedPlayer[]>> {
-    const ratedPlayers: RatedPlayer[] = await Promise.all(
-        Array.from(uniqueUsers).map(async user => {
-            return findPlayer(user, guildId)
-        })
-    )
-    const eventRoles: Role[] = await Promise.all(
-        Array.from(reactions).map(([k, v]) => k).map(async emojiName => {
-            return findRole(emojiName, guildId)
-        })
-    )
+async function roleAllocation(reactions: Map<string, User[]>, uniqueUsers: Set<User>, ratedPlayers: RatedPlayer[], eventRoles: Role[]): Promise<Map<Role, RatedPlayer[]>> {
     ratedPlayers.sort((a, b) => a.elo > b.elo ? -1 : 1)
-
     const userRoleMap: Map<User, Role[]> = invertReactionMap(reactions, uniqueUsers, eventRoles)
     const playerRoleMap: Map<RatedPlayer, Role[]> = ratedPlayerMap(userRoleMap, ratedPlayers)
     const initialRoleMap: Map<Role, RatedPlayer[]> = initialRoleAssignmentMap(eventRoles)
@@ -35,7 +28,7 @@ async function roleAllocation(reactions: Map<string, User[]>, uniqueUsers: Set<U
  * Find minimum leaf node and backtrack to find teams.
  */
 function teamAllocation(roleAssignmentMap: Map<Role, RatedPlayer[]>){
-    const firstFruit = Array.from(roleAssignmentMap).flatMap( ([role, players]) => initialFruit(players, []))
+    const firstFruit = initialFruit(roleAssignmentMap)
     const root = new TreeNode(firstFruit)
     const tree: TreeNode = buildTree(root)
     const minLeaf: TreeNode = findMinLeaf(tree)
@@ -51,7 +44,10 @@ function teamAllocation(roleAssignmentMap: Map<Role, RatedPlayer[]>){
 /**
  * Go through role assigment players by two or one and create fruit 
  */
-function initialFruit(unpaired: RatedPlayer[], fruits: Fruit[]){
+function initialFruit(roleAssignmentMap: Map<Role, RatedPlayer[]>): Fruit[] {
+    return Array.from(roleAssignmentMap).flatMap( ([role, players]) => createFruit(players, []))
+}
+function createFruit(unpaired: RatedPlayer[], fruits: Fruit[]): Fruit[] {
     if(unpaired.length < 1) return fruits;
 
     let curr = unpaired.shift()
@@ -61,7 +57,7 @@ function initialFruit(unpaired: RatedPlayer[], fruits: Fruit[]){
     } else {
         fruits.push(new Fruit(curr.elo, curr, null))
     }
-    return initialFruit(unpaired, fruits);
+    return createFruit(unpaired, fruits);
 }
 
 /**

@@ -3,8 +3,8 @@ import { sequelize } from './db';
 import { Op } from 'sequelize';
 import { Guild, Message, TextChannel, User, Collection } from "discord.js";
 import { League } from "./league";
-import { RatedPlayer } from "./rated_player";
-import { Role } from "./role";
+import { RatedPlayer, findPlayer } from "./rated_player";
+import { Role, findRole } from "./role";
 import { roleAllocation, teamAllocation } from "./matchmaking"
 interface EventAttributes {
     event_id: number;
@@ -49,8 +49,18 @@ class Event extends Model<EventAttributes, EventCreationAttributes> implements E
         const announcement: Message = this.locateAnnouncement(event, guild, league)
         const reactions: Map<string, User[]> = this.getReactions(announcement)
         const uniqueUsers: Set<User> = this.getUniqueUsers(reactions)
-        const nTeams: number = Math.floor(uniqueUsers.size / teamsize)
-        const roleAssignments: Map<Role, RatedPlayer[]> = await roleAllocation(reactions, uniqueUsers, nTeams, this.guild_id)
+        //const nTeams: number = Math.floor(uniqueUsers.size / teamsize)
+        const ratedPlayers: RatedPlayer[] = await Promise.all(
+            Array.from(uniqueUsers).map(async user => {
+                return findPlayer(user, this.guild_id)
+            })
+        )
+        const eventRoles: Role[] = await Promise.all(
+            Array.from(reactions).map(([k, v]) => k).map(async emojiName => {
+                return findRole(emojiName, this.guild_id)
+            })
+        )
+        const roleAssignments: Map<Role, RatedPlayer[]> = await roleAllocation(reactions, uniqueUsers, ratedPlayers, eventRoles)
         const teamAssignments: Map<number, RatedPlayer[]> = teamAllocation(roleAssignments)
         console.log(roleAssignments)
         console.log(teamAssignments)
