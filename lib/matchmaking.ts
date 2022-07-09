@@ -25,9 +25,19 @@ async function allocatePlayers(reactions: Map<string, User[]>, uniqueUsers: Set<
     const firstFruit = Array.from(roleAssignmentMap).flatMap( ([role, fruit]) => fruit)
 
     const root = new TreeNode(firstFruit)
-    const tree = buildTree(root)
+    const tree: TreeNode = buildTree(root)
+    const minLeaf: TreeNode = findMinLeaf(tree)
+    const leftFruit = minLeaf.subset.shift()
+    const rightFruit = minLeaf.subset
 
-    return new Promise<Map<number, RatedPlayer>>(() => { });
+    const leftTeam: RatedPlayer[] = backtrack(leftFruit, [])
+    const rightTeam: RatedPlayer[] = rightFruit.flatMap( fruit => backtrack(fruit, []))
+
+    const teams = new Map<number, RatedPlayer[]>()
+    teams.set(1, leftTeam)
+    teams.set(2, rightTeam)
+
+    return new Promise<Map<number, RatedPlayer>>(() => teams);
 }
 
 /**
@@ -165,3 +175,28 @@ function buildTree(node: TreeNode): TreeNode {
     return node;
 }
 
+function findMinLeaf(node: TreeNode): TreeNode {
+    if(!node.left && !node.right){
+        return node
+    }
+    let left = findMinLeaf(node.left)
+    let right = findMinLeaf(node.right)
+    return left.diff < right.diff ? left : right
+}
+
+function backtrack(fruit: Fruit, players: RatedPlayer[]): RatedPlayer[] {
+    if(fruit.mom.hasOwnProperty('val')){
+        return players;
+    }
+    if(fruit.mom.hasOwnProperty('elo')) {
+        players.push(<RatedPlayer>fruit.mom)
+    } else {
+        players.concat(backtrack(<Fruit>fruit.mom, players))
+    }
+    if(fruit.dad.hasOwnProperty('elo')) {
+        players.push(<RatedPlayer>fruit.mom)
+    } else {
+        players.concat(backtrack(<Fruit>fruit.dad, players))
+    }
+    return players;
+}
