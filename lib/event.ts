@@ -5,7 +5,8 @@ import { Guild, Message, TextChannel, User, Collection } from "discord.js";
 import { League } from "./league";
 import { RatedPlayer, findPlayer } from "./rated_player";
 import { Role, findRole } from "./role";
-import { roleAllocation, teamAllocation } from "./matchmaking"
+import { teamAllocation } from "./teamAssignment"
+import { roleAllocation } from "./roleAssignment"
 interface EventAttributes {
     event_id: number;
     guild_id: string;

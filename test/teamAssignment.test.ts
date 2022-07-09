@@ -1,31 +1,14 @@
 import { suite, test } from "@testdeck/mocha";
 import { assert, expect } from "chai";
-import { MockUser } from "./mockDiscordStructures";
-import { User } from "discord.js";
+
 import {
-    invertReactionMap, ratedPlayerMap, assignRoles,
     initialFruit, buildTree, findMinLeaf, backtrack, createTeams,
     Fruit, TreeNode
-} from "../lib/matchmaking"
+} from "../lib/teamAssignment"
 
 
 @suite
-class MatchmakingTest {
-
-    @test
-    'invert reaction map'() {
-        invertReactionMap
-    }
-
-    @test
-    'rated player map'() {
-        ratedPlayerMap
-    }
-
-    @test
-    'assign roles'() {
-        assignRoles
-    }
+class TeamAssignmentTest {
 
     @test
     'initial fruit'() {
