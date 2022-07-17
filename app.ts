@@ -39,7 +39,9 @@ client.once("ready", () => {
 
 async function registerEntities() {
   const models = [roles, events, ratedPlayers, leagues];
-  models.forEach((model) => model().sync({ alter: true }));
+  for (const model of models) {
+    await model().sync({ alter: true });
+  }
 }
 
 async function registerLeagues() {
