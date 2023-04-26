@@ -16,7 +16,7 @@ module.exports = {
 			where: { guild_id: message.guild.id }
 		})
 		const leagueMemberRole = message.guild.roles.cache
-			.filter(role => role.id == myLeague.member_role_id).array()[0]
+			.filter(role => role.id == myLeague.member_role_id).values()[0]
         try {
 			var role = message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
         } catch (e) {

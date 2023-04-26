@@ -19,9 +19,9 @@ export = {
 		let role: Role;
 		try{
 			let leagueMemberRole = message.guild.roles.cache
-				.filter(role => role.id == myLeague.member_role_id.toString()).array()[0]
+				.filter(role => role.id == myLeague.member_role_id.toString()).values()[0]
 
-			role = await message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
+			role = message.guild.roles.cache.find(role => role.name === leagueMemberRole.name);
 		} catch {
 			message.channel.send('A role must be set using !member-role rolename');
 			return;

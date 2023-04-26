@@ -24,7 +24,7 @@ export = {
       message.channel.send(`Could not find role ${roleName}`);
       return;
     }
-    const role = match.array()[0];
+    const role = match.values()[0];
     return role;
   },
   async findMatchingChannel(
@@ -33,13 +33,13 @@ export = {
     channel: String
   ) {
     const match = message.guild.channels.cache.filter(
-      (chan) => chan.type == "text" && chan.name == channel
+      (chan) => chan.type.toString() == "text" && chan.name == channel
     );
     if (!match.size) {
       message.channel.send(`Could not find text channel ${channel}`);
       return;
     }
-    const matchedChannel = match.array()[0];
+    const matchedChannel = match.values()[0];
     return matchedChannel;
   },
 
@@ -154,9 +154,9 @@ export = {
   },
 
   async collectResponse(message: Message) {
-    const filter = (m) => m.author.id === message.author.id;
+    const msg_filter = (m) => m.author.id === message.author.id;
     const collectedMessage = await message.channel
-      .awaitMessages(filter, { max: 1, time: 60000, errors: ["time"] })
+      .awaitMessages({ filter: msg_filter, time: 2000, max: 1, errors: ['time'] })
       .then((collection) => {
         return collection.first();
       })

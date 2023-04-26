@@ -1,6 +1,7 @@
 import config = require("./config.json");
 import { readdirSync } from "fs";
-import { Client, Collection, Intents } from "discord.js";
+import { Client, Collection } from "discord.js";
+import { GatewayIntentBits } from "discord.js";
 import { leagues } from "./lib/league";
 import { ratedPlayers } from "./lib/rated_player";
 import { roles } from "./lib/role";
@@ -17,7 +18,7 @@ export class CommandClient extends Client {
   commands: Collection<string, Command>;
 }
 
-const myIntents = new Intents();
+/*const myIntents = new GatewayIntentBits();
 myIntents.add(
   Intents.FLAGS.GUILD_MESSAGES,
   Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
@@ -26,15 +27,26 @@ myIntents.add(
   Intents.FLAGS.GUILD_MEMBERS
   //Intents.FLAGS.GUILD_EMOJIS_AND_STICKERS
 );
+*/
 
-const client: CommandClient = new CommandClient(/*{intents: myIntents}*/);
+const client: CommandClient = new CommandClient({
+    intents: [
+        GatewayIntentBits.GuildMembers, 
+        GatewayIntentBits.GuildMessageReactions,
+        GatewayIntentBits.GuildMessageTyping,
+        GatewayIntentBits.GuildMessages,
+        GatewayIntentBits.Guilds,
+        GatewayIntentBits.DirectMessages,
+        GatewayIntentBits.MessageContent
+    ]
+});
 client.login(config.token);
 
 client.once("ready", () => {
-  registerEvents()
-    .then(registerCommands)
+    registerCommands()
     .then(registerEntities) // development only!
-    .then(registerLeagues);
+    .then(registerLeagues)
+    .then(registerEvents);
 });
 
 async function registerEntities() {
@@ -46,9 +58,10 @@ async function registerEntities() {
 
 async function registerLeagues() {
   const leagueTable = leagues();
-  const guilds = client.guilds.cache.array();
-
+  const guilds = client.guilds.cache.values();
+  console.log('Leagues registered!')
   for (let guild of guilds) {
+    console.log(guild.id)
     let league = await leagueTable.findOne({
       where: { guild_id: guild.id },
     });
@@ -60,6 +73,7 @@ async function registerLeagues() {
 }
 
 async function registerCommands() {
+  console.log('Commands registered!')
   client.commands = new Collection();
   const commandFiles = readdirSync(`${__dirname}/commands/`).filter(
     (file) => !file.endsWith("map")
@@ -71,6 +85,7 @@ async function registerCommands() {
 }
 
 async function registerEvents() {
+  console.log('Events registered!')
   const eventFiles = readdirSync(`${__dirname}/events`).filter(
     (file) => !file.endsWith("map")
   );

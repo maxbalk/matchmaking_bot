@@ -1,6 +1,6 @@
-import { Guild, Message } from 'discord.js';
+import { Message } from 'discord.js';
 import { CommandClient } from '../app';
-import League = require('../lib/league')
+import { PermissionsBitField } from 'discord.js';
 import matchRole from './setup'
 
 export = {
@@ -10,7 +10,7 @@ export = {
     admin: false,
 	async execute(message: Message, client: CommandClient, args: Array<string>) {
 
-        if (!message.member.hasPermission(['ADMINISTRATOR'])) {
+        if (!message.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
             message.channel.send('Only server administrators can use this command.');
             return;
         }

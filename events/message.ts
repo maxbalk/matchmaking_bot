@@ -5,7 +5,7 @@ const config = require('../config.json');
 const prefix = config.prefix
 
 export = {
-	name: 'message',
+	name: 'messageCreate',
 	async execute(message: Message, client: CommandClient) {
         if (!message.content.startsWith(prefix) || message.author.bot) return;
         const args = message.content.slice(prefix.length).trim().split(/ +/);
@@ -15,7 +15,7 @@ export = {
         const command = client.commands.get(commandName);
 
         let league = await findGuildLeague(message.guild.id)
-        if (command.admin){
+        if (command.admin && league != null && league != undefined){
             if(!league.permCheck(message)){
                 return;
             }

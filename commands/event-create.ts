@@ -5,6 +5,7 @@ import League = require('../lib/league');
 import Role = require('../lib/role');
 import Event = require('../lib/event');
 import { Message } from 'discord.js';
+import { EmbedBuilder } from 'discord.js';
 
 const TimeZones = {
 	'EU': 'Europe/Berlin',
@@ -30,7 +31,7 @@ export = {
 			});
 			const event_channel_id = myLeague.event_channel_id;
 			const event_channel = message.guild.channels.cache
-				.filter(chan => chan.id == event_channel_id).array()[0];
+				.filter(chan => chan.id == event_channel_id).values()[0];
 			try {
 				const announcement_id = await eventAnnouncement(event_channel, event_date);
 				const res = await eventCreate(message, event_date, announcement_id);
@@ -51,7 +52,7 @@ async function eventAnnouncement(event_channel, event_date) {
 	let role = new Role.Role()
 	const guild_roles = await role.getGuildRoles(event_channel.guild.id);
 
-	const eventEmbed = new Discord.MessageEmbed()
+	const eventEmbed = new EmbedBuilder()
 	.setColor('#0099ff')
 	.setTitle(`${event_channel.guild.name} league GvG event`)
 	.setDescription(`${event_date}`)
