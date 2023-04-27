@@ -20,8 +20,6 @@ export = {
     const roles = message.guild.roles.cache.values();
     for (const role of roles) {
       if (role.name === roleName) {
-        console.log(role.name);
-        console.log(role.id);
         return role;
       }
     }
@@ -32,20 +30,17 @@ export = {
     client: CommandClient,
     channel: String
   ) {
-    const match = message.guild.channels.cache.filter(
-      (chan) => chan.type.toString() == "text" && chan.name == channel
-    );
-    if (!match.size) {
-      message.channel.send(`Could not find text channel ${channel}`);
-      return;
+    const channels = message.guild.channels.cache.values()
+    for (const i of channels) {
+      if(i.name === channel) {
+        return i
+      }
     }
-    const matchedChannel = match.values()[0];
-    return matchedChannel;
+    message.channel.send(`Could not find text channel ${channel}`);
   },
 
   async adminSetup(message: Message, client: CommandClient) {
     const result = await this.trueAdminSetup(message, client);
-    console.log(result);
     if (result === "success") {
       return;
     } else {
@@ -66,7 +61,6 @@ export = {
 
       if (match !== "fail") {
         const affectedRows = await league.updateAdminRoleID(match.id, guildID);
-        console.log(match.id);
         league.admin_role_id = match;
 
         if (Number(affectedRows) > 0) {
@@ -83,8 +77,16 @@ export = {
       }
     }
   },
-
   async eventNameSetup(message: Message, client: CommandClient) {
+    const result = await this.trueEventNameSetup(message, client);
+    if (result === "success") {
+      return;
+    } else {
+      await this.eventNameSetup(message, client);
+    }
+  },
+
+  async trueEventNameSetup(message: Message, client: CommandClient) {
     let league = await findGuildLeague(message.guild.id);
     message.channel.send("Enter the event text channels name");
     try {
@@ -101,14 +103,15 @@ export = {
 
       if (Number(affectedRows) > 0) {
         message.channel.send(`Event channel set to: **${channels.name}**`);
+        return 'success'
       } else {
         message.channel.send("There was a problem updating the event channel");
+        return 'fail'
       }
     } catch (e) {
       if (e instanceof abortSetup) {
         return;
       }
-      this.eventNameSetup(message, client);
     }
   },
 
