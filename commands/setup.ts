@@ -17,17 +17,16 @@ export = {
   },
 
   async findMatchingRole(message: Message, roleName: String) {
-    const match = message.guild.roles.cache.filter(
-      (role) => role.name == roleName
-    );
-  
-    if (!match.size) {
-      message.channel.send(`Could not find role ${roleName}`);
-      return;
+    const match = message.guild.roles.cache.values();
+    for (let i in match){
+      if (match[i] === roleName){
+        console.log(match[i].name)
+        return match[i].id
+      }
+      else{
+        return
+      }
     }
-    const role = match.values()[0];
-    console.log(role)
-    return role;
   },
   async findMatchingChannel(
     message: Message,
