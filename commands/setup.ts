@@ -25,7 +25,7 @@ export = {
         return role;
       }
     }
-    return 'fail';
+    return "fail";
   },
   async findMatchingChannel(
     message: Message,
@@ -46,10 +46,10 @@ export = {
   async adminSetup(message: Message, client: CommandClient) {
     const result = await this.trueAdminSetup(message, client);
     console.log(result);
-    if(result === 'success') {
-      return
+    if (result === "success") {
+      return;
     } else {
-      await this.adminSetup(message, client)
+      await this.adminSetup(message, client);
     }
   },
 
@@ -64,14 +64,14 @@ export = {
         adminRoleCollection.content
       );
 
-      if (match !== 'fail') {
+      if (match !== "fail") {
         const affectedRows = await league.updateAdminRoleID(match.id, guildID);
         console.log(match.id);
         league.admin_role_id = match;
 
         if (Number(affectedRows) > 0) {
           message.channel.send(`League admin role set to: **${match.name}**`);
-          return 'success'
+          return "success";
         }
       } else {
         message.channel.send(
@@ -113,33 +113,46 @@ export = {
   },
 
   async memberSetup(message: Message, client: CommandClient) {
+    const result = await this.trueMemberSetup(message, client);
+    if (result === "success") {
+      return;
+    } else {
+      await this.memberSetup(message, client);
+    }
+  },
+
+  async trueMemberSetup(message: Message, client: CommandClient) {
     let league = await findGuildLeague(message.guild.id);
     message.channel.send("Please enter the name of the member role");
     try {
       const memberRoleCollection = await this.collectResponse(message);
-      const newRole = await this.findMatchingRole(
+      const match = await this.findMatchingRole(
         message,
         memberRoleCollection.content
       );
-      const affectedRows = await league.updateMemberRoleID(
-        newRole.id,
-        message.guild.id
-      );
 
-      if (Number(affectedRows) > 0) {
-        message.channel.send(`League member role set to: **${newRole.name}**`);
+      if (match !== "fail") {
+        const affectedRows = await league.updateMemberRoleID(
+          match.id,
+          message.guild.id
+        );
+        if (Number(affectedRows) > 0) {
+          message.channel.send(`League member role set to: **${match.name}**`);
+          return "success";
+        }
       } else {
         message.channel.send(
-          "There was a problem updating the league member role, please read the above message."
+          "There was a problem updating the league member role, please use a role within in the server."
         );
+        return "fail";
       }
     } catch (e) {
       if (e instanceof abortSetup) {
         return;
       }
-      this.memberSetup(message, client);
     }
   },
+
   async setupMaxteamSize(message: Message, client: CommandClient) {
     let league = await findGuildLeague(message.guild.id);
     message.channel.send(
