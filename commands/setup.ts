@@ -20,11 +20,13 @@ export = {
     const match = message.guild.roles.cache.filter(
       (role) => role.name == roleName
     );
+  
     if (!match.size) {
       message.channel.send(`Could not find role ${roleName}`);
       return;
     }
     const role = match.values()[0];
+    console.log(role)
     return role;
   },
   async findMatchingChannel(
@@ -44,9 +46,14 @@ export = {
   },
 
   async adminSetup(message: Message, client: CommandClient) {
+    const result = await this.trueAdminSetup(message, client)
+    console.log(result)
+  },
+
+  async trueAdminSetup(message: Message, client: CommandClient) {
     const guildID = message.guild.id;
     let league = await findGuildLeague(message.guild.id)
-    message.channel.send("Please enter the name of the admin role");
+     message.channel.send("Please enter the name of the admin role");
     try {
       const adminRoleCollection = await this.collectResponse(message);
       const match = await this.findMatchingRole(
@@ -54,23 +61,25 @@ export = {
         adminRoleCollection.content
       );
       const affectedRows = await league.updateAdminRoleID(match.id, guildID);
-
+      console.log(match.id)
       league.admin_role_id = match;
+
 
       if (Number(affectedRows) > 0) {
         message.channel.send(`League admin role set to: **${match.name}**`);
-      } else {
+        } else {
         message.channel.send(
           "There was a problem updating the league admin role"
         );
       }
     } catch (e) {
       if (e instanceof abortSetup) {
-        return;
+        return 'fail';
       }
-      this.adminSetup(message, client);
+    return 'success'
     }
   },
+
   async eventNameSetup(message: Message, client: CommandClient) {
     let league = await findGuildLeague(message.guild.id)
     message.channel.send("Enter the event text channels name");
@@ -154,9 +163,11 @@ export = {
   },
 
   async collectResponse(message: Message) {
-    const msg_filter = (m) => m.author.id === message.author.id;
+   
+    const msg_filter = (m) => m.author.id === message.author.id
+    console.log(message.author.id)
     const collectedMessage = await message.channel
-      .awaitMessages({ filter: msg_filter, time: 2000, max: 1, errors: ['time'] })
+      .awaitMessages({filter: msg_filter, time: 2000000, max: 1, errors: ['time'] })
       .then((collection) => {
         return collection.first();
       })
@@ -168,3 +179,4 @@ export = {
     return collectedMessage;
   },
 };
+
